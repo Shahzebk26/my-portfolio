@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node 'C:\\\\Users\\\\Hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Hp-shahzeb-portfolio\\\\d96bc603-8c09-433d-911c-acb189b2951a\\\\scratchpad\\\\shot-cards.js' 'C:\\\\Users\\\\Hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Hp-shahzeb-portfolio\\\\d96bc603-8c09-433d-911c-acb189b2951a\\\\scratchpad\\\\shots\\\\cards-default2.png' 'C:\\\\Users\\\\Hp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Hp-shahzeb-portfolio\\\\d96bc603-8c09-433d-911c-acb189b2951a\\\\scratchpad\\\\shots\\\\cards-hover2.png')"
+    ]
+  }
+}

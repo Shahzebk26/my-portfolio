@@ -1,0 +1,166 @@
+{
+  "siteSettings": {
+    "siteTitle": "Shahzeb | Full-Stack Developer",
+    "siteDescription": "Professional portfolio website for a full-stack web developer showcasing modern projects and technical expertise.",
+    "ownerName": "Shahzeb Khan",
+    "footerTagline": "Designed and developed with care for modern brands, startups, and ambitious teams."
+  },
+  "hero": {
+    "eyebrow": "Full-Stack Web Developer",
+    "greeting": "Hi, I’m",
+    "firstName": "Shahzeb",
+    "lastName": "Khan",
+    "tagline": "Building thoughtful digital products that feel premium and perform beautifully.",
+    "description": "I create fast, modern web experiences for startups, founders, and growing businesses that need both visual polish and technical reliability.",
+    "availableBadge": "Available for hire",
+    "primaryCtaLabel": "View Projects",
+    "primaryCtaHref": "/projects",
+    "secondaryCtaLabel": "Let's Talk",
+    "secondaryCtaHref": "/contact",
+    "metrics": [
+      {
+        "value": "4+",
+        "label": "Years building digital products"
+      },
+      {
+        "value": "25+",
+        "label": "Projects shipped with impact"
+      },
+      {
+        "value": "10+",
+        "label": "Clients and teams supported"
+      }
+    ]
+  },
+  "expertise": {
+    "eyebrow": "Expertise",
+    "heading": "Services that make products stronger.",
+    "description": "The work I deliver is focused on meaningful outcomes — from thoughtful UI systems to secure, scalable web apps.",
+    "cards": [
+      {
+        "label": "Product Design",
+        "title": "Design systems that feel polished and modern.",
+        "description": "Professional motion, clear hierarchy, and a refined presentation for every project."
+      },
+      {
+        "label": "Enterprise Apps",
+        "title": "Scalable dashboards and admin workflows.",
+        "description": "Professional motion, clear hierarchy, and a refined presentation for every project."
+      },
+      {
+        "label": "E-commerce",
+        "title": "High-converting stores with fast checkout paths.",
+        "description": "Professional motion, clear hierarchy, and a refined presentation for every project."
+      },
+      {
+        "label": "SaaS Growth",
+        "title": "Subscription flows and customer success tools.",
+        "description": "Professional motion, clear hierarchy, and a refined presentation for every project."
+      }
+    ]
+  },
+  "aboutTeaser": {
+    "eyebrow": "About Me",
+    "heading": "A calm, detail-driven developer focused on meaningful results.",
+    "description": "I'm a full-stack developer who enjoys turning ideas into polished digital products. From front-end interfaces to scalable back-end systems, I focus on clean architecture, strong user experience, and dependable delivery.",
+    "strengthsHeading": "Core Strengths",
+    "strengths": [
+      "End-to-end product development",
+      "Performance-driven UI engineering",
+      "API and database integration",
+      "Clear communication and client collaboration"
+    ]
+  },
+  "homeProjects": {
+    "eyebrow": "Selected Work",
+    "heading": "Projects I've Built",
+    "linkLabel": "See all projects →"
+  },
+  "connect": {
+    "eyebrow": "Ready to build",
+    "heading": "Let's turn your next idea into a",
+    "headingHighlight": "polished digital experience.",
+    "description": "Whether you need a modern website, a web app, or a thoughtful product upgrade, I'm ready to help turn your idea into a polished digital experience.",
+    "features": [
+      {
+        "highlight": "Single Project",
+        "rest": "Engagement",
+        "description": "From a marketing site to a full web app, I deliver focused, polished solutions built around your specific goals."
+      },
+      {
+        "highlight": "Ongoing",
+        "rest": "Partnership",
+        "description": "Dedicated support with fast turnaround, clear communication, and reliable long-term collaboration."
+      }
+    ],
+    "cardHeading": "Connect",
+    "cardHeadingHighlight": "With Me",
+    "cardSubheading": "Skip the waiting. Let's move forward today.",
+    "email": "",
+    "phone": "+923057100254",
+    "whatsappUrl": "https://wa.me/923057100254",
+    "whatsappLabel": "Connect on WhatsApp",
+    "statusOnlineLabel": "Available for new projects",
+    "statusResponseLabel": "Quick response time"
+  },
+  "aboutPage": {
+    "metaTitle": "About | Shahzeb",
+    "metaDescription": "Learn more about Shahzeb, a full-stack developer focused on modern product delivery.",
+    "heroTitle": "About Me",
+    "heroIntro": "I bring together product thinking, thoughtful design, and engineering discipline to create digital experiences that feel modern and dependable.",
+    "approachHeading": "My approach",
+    "approachParagraphs": [
+      "I enjoy taking ideas from concept to deployment, whether that means crafting a compelling front-end experience, building efficient back-end workflows, or improving an existing product for better scale and maintainability.",
+      "The result is web products that are not only visually polished, but also practical, secure, and ready for real-world growth."
+    ],
+    "strengthsHeading": "Core strengths",
+    "strengths": [
+      "Full-stack product development",
+      "UI/UX-oriented web applications",
+      "API design and system integration",
+      "Performance optimization and reliability"
+    ],
+    "highlights": [
+      {
+        "label": "Years building products",
+        "value": "4+"
+      },
+      {
+        "label": "Projects delivered",
+        "value": "25+"
+      },
+      {
+        "label": "Clients supported",
+        "value": "10+"
+      }
+    ]
+  },
+  "contactPage": {
+    "metaTitle": "Contact | Shahzeb",
+    "metaDescription": "Get in touch for freelance work, collaborations, or full-time opportunities.",
+    "heroTitle": "Contact",
+    "heroIntro": "Available for freelance projects, product partnerships, and full-time opportunities.",
+    "heading": "Let's build something meaningful",
+    "description": "Whether it's a single project or an ongoing partnership, I'm ready to help — from first concept to a fully shipped, dependable product.\n",
+    "ctaLabel": "Start a conversation",
+    "email": "shahzebk26@gmail.com",
+    "reachOutHeading": "Reach out",
+    "methods": [
+      {
+        "label": "Email",
+        "value": "shahzebk26@gmail.com",
+        "href": "mailto:shahzebk26@gmail.com"
+      },
+      {
+        "label": "LinkedIn",
+        "value": "linkedin.com/in/shahzeb-khan-229928251/",
+        "href": "https://www.linkedin.com/in/shahzeb-khan-229928251/"
+      },
+      {
+        "label": "GitHub",
+        "value": "github.com/Zeboo",
+        "href": "https://github.com/Zeboo"
+      }
+    ]
+  }
+}
