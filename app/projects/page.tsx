@@ -4,6 +4,9 @@ import Link from "next/link";
 import { readProjects } from "../../lib/project-storage";
 import SiteShell from "../components/site-shell";
 
+// This page reads projects created at runtime by the admin API.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Projects | Shahzeb",
   description: "A selection of full-stack web projects built with modern technologies and thoughtful UI.",

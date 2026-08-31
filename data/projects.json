@@ -13,5 +13,122 @@
     "slug": "sonai-racing",
     "image": "/uploads/1785916988817-sonai-racing-1-.jpg",
     "liveUrl": "sonairacing.com"
+  },
+  {
+    "id": "1788171446173-tj3p21b",
+    "createdAt": "2026-08-31T10:17:26.173Z",
+    "slug": "vividhood-beauty-booking-platform",
+    "title": "Vividhood",
+    "description": "Upload a high-quality screenshot of the Vividhood homepage or the main platform interface.",
+    "stack": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Node.js"
+    ],
+    "category": "Web App",
+    "image": "/uploads/1788171413020-vivihood-3.jpg",
+    "liveUrl": "https://vividhood.com/",
+    "featured": false,
+    "client": "Shahzeb",
+    "year": "2025",
+    "industry": "Beauty, Wellness & Online Booking",
+    "overview": "Vividhood is a modern online beauty and wellness booking platform designed to connect customers with trusted beauty professionals and independent salons. The platform allows users to explore available beauty services, compare options, check availability, and conveniently book appointments online.\n\nThe platform focuses on creating a simple and seamless booking experience while also providing beauty professionals and salon owners with tools to manage their businesses, attract new customers, and grow their online presence.\n\nVividhood offers a wide range of beauty and wellness services and aims to make discovering and booking professional services faster and more convenient. The platform combines service discovery, appointment scheduling, customer reviews, and secure online booking into one digital experience.\n\nThe platform also supports beauty professionals by providing business tools such as online booking management, appointment reminders, customer reviews, profile pages, and payment-related features.",
+    "keyFeatures": [
+      "Online beauty service discovery",
+      "Salon and professional listings",
+      "Appointment booking system",
+      "Real-time availability checking",
+      "Service search and filtering",
+      "Location-based service discovery",
+      "Customer reviews and ratings",
+      "Online booking calendar",
+      "Appointment management",
+      "SMS and email reminders",
+      "Business profile pages",
+      "Secure payment and payout support",
+      "Multi-language support",
+      "Beauty and wellness content",
+      "Loyalty and rewards features",
+      "Responsive user interface"
+    ],
+    "gallery": [],
+    "stats": [
+      {
+        "label": "Appointments booked",
+        "value": "1.2M+"
+      },
+      {
+        "label": "Verified reviews",
+        "value": "450,000+"
+      },
+      {
+        "label": "Partner businesses",
+        "value": "130,000+"
+      },
+      {
+        "label": "Average rating",
+        "value": "4.9/5"
+      },
+      {
+        "label": "Booking fee",
+        "value": "12% per booking"
+      }
+    ]
+  },
+  {
+    "id": "1788172589751-ncmu6wl",
+    "createdAt": "2026-08-31T10:36:29.751Z",
+    "slug": "puranova",
+    "title": "Puranova",
+    "description": "A premium real estate and investment advisory website designed to help local and international clients discover smart, secure, and data-driven property investment opportunities in Dubai.\n\nPuranova focuses on personalized investment planning, curated property sourcing, ROI analysis, first-time buyer support, and long-term property advisory.",
+    "stack": [
+      "WordPress",
+      "PHP",
+      "JavaScript",
+      "HTML5",
+      "CSS3"
+    ],
+    "category": "Web App",
+    "image": "/uploads/1788172589434-puranova-2x.jpg",
+    "liveUrl": "https://puranovaproperties.ae/",
+    "featured": false,
+    "year": "2025",
+    "industry": "Real Estate",
+    "overview": "Puranova Properties is a premium Dubai-based real estate and property investment advisory platform created to provide investors, homebuyers, families, and international clients with a smarter and more secure way to navigate the Dubai real estate market.\n\nThe website presents Puranova as a strategic real estate partner rather than a traditional high-volume property agency. Its digital experience focuses on trust, transparency, market research, investor protection, personalized recommendations, and long-term investment value.\n\nThe platform showcases Puranova's core services, including tailored investment planning, first-time buyer support, return-focused portfolio management, property sourcing, ROI and rental-yield analysis, legal and financial support, and complete investment safeguards.\n\nThe website also provides dedicated resources for investors, first-time buyers, relocation clients, high-net-worth individuals, and family offices. Visitors can explore property opportunities, learn about the company's investment philosophy, meet the advisory team, access educational resources, and contact the company for a consultation.\n\nThe overall website experience is designed around a premium, professional, and trust-focused visual identity that reflects Puranova's positioning as a selective Dubai real estate investment advisory firm.",
+    "keyFeatures": [
+      "Premium real estate investment platform",
+      "Curated Dubai property opportunities",
+      "Personalized investment planning",
+      "ROI and rental-yield analysis",
+      "First-time buyer support",
+      "Investor-focused property advisory",
+      "Portfolio management solutions",
+      "Legal and financial support",
+      "Property due-diligence guidance",
+      "Responsive design",
+      "Property listings integration",
+      "Lead generation and consultation booking"
+    ],
+    "gallery": [],
+    "stats": [
+      {
+        "label": "Years of Experience",
+        "value": "40+"
+      },
+      {
+        "label": "Property Sales",
+        "value": "$150M"
+      },
+      {
+        "label": "Properties Sold",
+        "value": "300+"
+      },
+      {
+        "label": "Client Satisfaction",
+        "value": "95%"
+      }
+    ]
   }
 ]

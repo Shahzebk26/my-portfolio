@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { addProject, deleteProject, readProjects, updateProject } from "../../../lib/project-storage";
 import { verifyAdminToken } from "../../../lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const projects = await readProjects();
-  return NextResponse.json({ projects });
+  return NextResponse.json(
+    { projects },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
+}
+
+function revalidateProjectPages(slug?: string) {
+  revalidatePath("/");
+  revalidatePath("/projects");
+  revalidatePath("/projects/[slug]", "page");
+  if (slug) revalidatePath(`/projects/${slug}`);
 }
 
 export async function POST(request: Request) {
@@ -41,6 +54,8 @@ export async function POST(request: Request) {
           .filter((item: { label: string; value: string }) => item.label && item.value)
       : undefined,
   });
+
+  revalidateProjectPages(project.slug);
 
   return NextResponse.json({ project }, { status: 201 });
 }
@@ -87,6 +102,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
   }
 
+  revalidateProjectPages(project.slug);
+
   return NextResponse.json({ project });
 }
 
@@ -105,6 +122,8 @@ export async function DELETE(request: Request) {
   if (!deleted) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
   }
+
+  revalidateProjectPages();
 
   return NextResponse.json({ success: true });
 }

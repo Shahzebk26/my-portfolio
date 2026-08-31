@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { readProjects } from "../../../lib/project-storage";
 import SiteShell from "../../components/site-shell";
 
+// Newly created slugs must be resolved from the current project file.
+export const dynamic = "force-dynamic";
+
 async function getProject(slug: string) {
   const projects = await readProjects();
   return projects.find((project) => project.slug === slug) ?? null;

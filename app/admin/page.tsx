@@ -466,7 +466,7 @@ export default function AdminPage() {
     setError(null);
 
     try {
-      const response = await fetch("/api/projects");
+      const response = await fetch("/api/projects", { cache: "no-store" });
       if (!response.ok) {
         throw new Error("Unable to load projects.");
       }

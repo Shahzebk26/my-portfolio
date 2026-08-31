@@ -9,6 +9,10 @@ import ConnectCard from "./components/connect-card";
 import ProjectsCarousel from "./components/projects-carousel";
 import ProductDeliveryMap from "./components/product-delivery-map";
 
+// Projects are managed at runtime through the admin API and stored in a JSON file.
+// Always read the latest file when the homepage is requested.
+export const dynamic = "force-dynamic";
+
 async function getSiteConfig() {
   try {
     const filePath = path.join(process.cwd(), "data", "site.json");
@@ -22,8 +26,9 @@ async function getSiteConfig() {
 export default async function Home() {
   const [siteConfig, content, allProjects] = await Promise.all([getSiteConfig(), readContent(), readProjects()]);
   const { hero, expertise, aboutTeaser, homeProjects, connect, contactPage } = content;
-  const featuredProjects = allProjects.filter((project) => project.featured);
-  const showcaseProjects = featuredProjects.length > 0 ? featuredProjects : allProjects;
+  // Keep the homepage showcase to three cards, while allowing non-featured
+  // projects to fill the remaining slots when fewer than three are featured.
+  const showcaseProjects = allProjects.slice(0, 3);
 
   return (
     <SiteShell>
