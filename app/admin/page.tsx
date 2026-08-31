@@ -420,6 +420,7 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [projectFormOpen, setProjectFormOpen] = useState(false);
   const [form, setForm] = useState({ ...initialForm });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -430,6 +431,16 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [token, setToken] = useState<string | null>(null);
+
+  const openNewProjectForm = () => {
+    resetForm();
+    setProjectFormOpen(true);
+  };
+
+  const closeProjectForm = () => {
+    resetForm();
+    setProjectFormOpen(false);
+  };
 
   useEffect(() => {
     const savedToken = window.localStorage.getItem("portfolio-admin-token");
@@ -769,6 +780,7 @@ export default function AdminPage() {
 
       await fetchProjects(token ?? undefined);
       resetForm();
+      setProjectFormOpen(false);
       setStatus("Project saved.");
     } catch {
       setError("Unable to save project.");
@@ -804,6 +816,7 @@ export default function AdminPage() {
   };
 
   const startEdit = (project: Project) => {
+    setProjectFormOpen(true);
     setEditingId(project.id);
     setForm({
       title: project.title ?? "",
@@ -884,7 +897,13 @@ export default function AdminPage() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (tab.id === "projects") {
+                  resetForm();
+                  setProjectFormOpen(false);
+                }
+              }}
               className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition duration-300 ${
                 activeTab === tab.id
                   ? "bg-cyan-500/15 text-cyan-300"
@@ -921,9 +940,15 @@ export default function AdminPage() {
 
       <main className="flex-1 overflow-y-auto p-6 lg:p-10">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 lg:hidden">
-          <select
-            value={activeTab}
-            onChange={(event) => setActiveTab(event.target.value as TabId)}
+           <select
+             value={activeTab}
+             onChange={(event) => {
+               const nextTab = event.target.value as TabId;
+               setActiveTab(nextTab);
+               if (nextTab === "projects") {
+                 closeProjectForm();
+               }
+             }}
             className="rounded-full border border-(--border) bg-(--panel-strong) px-4 py-2.5 text-sm font-medium text-(--text-strong) outline-none"
           >
             {TABS.map((tab) => (
@@ -943,7 +968,9 @@ export default function AdminPage() {
 
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-400">{activeTabMeta.label}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-(--text-strong)">{activeTabMeta.description}</h1>
+          <h1 className="mt-2 text-3xl font-semibold text-(--text-strong)">
+            {activeTab === "projects" && projectFormOpen ? "Add or update a project" : activeTabMeta.description}
+          </h1>
         </div>
 
       {status ? (
@@ -1214,15 +1241,25 @@ export default function AdminPage() {
       ) : null}
 
       {activeTab === "projects" ? (
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-3xl border border-(--border) bg-(--panel) p-8 shadow-lg shadow-slate-950/10">
+        <div className="w-full">
+          {!projectFormOpen ? <section className="rounded-3xl border border-(--border) bg-(--panel) p-8 shadow-lg shadow-slate-950/10">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-400">Projects</p>
                 <h2 className="mt-3 text-2xl font-semibold text-(--text-strong)">Manage your portfolio content</h2>
               </div>
-              <div className="rounded-3xl bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200">
-                {projects.length} projects, {featuredCount} featured
+              <div className="flex items-center gap-3">
+                <div className="rounded-3xl bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200">
+                  {projects.length} projects, {featuredCount} featured
+                </div>
+                <button
+                  type="button"
+                  onClick={openNewProjectForm}
+                  className="btn-primary inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  Add new Project
+                </button>
               </div>
             </div>
 
@@ -1233,14 +1270,19 @@ export default function AdminPage() {
                 </div>
               ) : projects.length === 0 ? (
                 <div className="rounded-3xl border border-(--border) bg-(--panel-strong) p-6 text-(--muted)">
-                  No projects found. Add the first one using the form.
+                  No projects found. Click &quot;Add new Project&quot; to create your first one.
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="overflow-hidden rounded-2xl border border-(--border) bg-(--panel-strong)">
+                  <div className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 border-b border-(--border) px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--muted) md:grid-cols-[34px_minmax(140px,1fr)_minmax(180px,1.5fr)_minmax(140px,1fr)_90px_150px]">
+                    <span><input type="checkbox" aria-label="Select all projects" className="h-4 w-4 rounded border-(--border) bg-(--panel) accent-cyan-400" /></span>
+                    <span>Title</span><span className="hidden md:block">Short description</span><span className="hidden md:block">Slug</span><span className="hidden md:block">State</span><span className="text-right">Actions</span>
+                  </div>
+                  <div>
                   {projects.map((project) => (
-                    <div key={project.id} className="overflow-hidden rounded-3xl border border-(--border) bg-(--panel-strong) p-6 shadow-sm">
+                    <div key={project.id} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 border-b border-(--border) px-4 py-4 transition last:border-b-0 hover:bg-(--panel) md:grid-cols-[34px_minmax(140px,1fr)_minmax(180px,1.5fr)_minmax(140px,1fr)_90px_150px]">
                       {project.image ? (
-                        <div className="mb-5 overflow-hidden rounded-3xl border border-(--border) bg-slate-950/5">
+                        <div className="hidden">
                           <Image
                             src={project.image}
                             alt={`${project.title} preview`}
@@ -1251,28 +1293,30 @@ export default function AdminPage() {
                           />
                         </div>
                       ) : null}
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="max-w-xl">
+                      <div className="contents">
+                        <div className="contents">
+                          <input type="checkbox" aria-label={`Select ${project.title}`} className="h-4 w-4 rounded border-(--border) bg-(--panel) accent-cyan-400" />
                           <p className="text-sm font-semibold text-cyan-300">{project.title}</p>
-                          <p className="mt-2 text-sm text-(--muted)">{project.description}</p>
-                          <div className="mt-3 flex flex-wrap gap-2 text-xs text-(--muted)">
+                          <p className="hidden truncate text-sm text-(--muted) md:block" title={project.description}>{project.description || "No short description added."}</p>
+                          <div className="hidden truncate text-sm text-cyan-300 md:block" title={project.slug}>
                             <span>{project.category}</span>
                             <span>•</span>
                             <span>{project.slug}</span>
                           </div>
+                          <span className="hidden w-fit rounded-md border border-emerald-400/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 md:inline-flex">Published</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap justify-end gap-2">
                           <button
                             type="button"
                             onClick={() => startEdit(project)}
-                            className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 transition hover:bg-cyan-500/20"
+                            className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-200 transition hover:bg-cyan-500/20 md:px-4"
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(project.id)}
-                            className="rounded-full border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm text-red-200 transition hover:bg-red-500/20"
+                            className="rounded-full border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200 transition hover:bg-red-500/20 md:px-4"
                           >
                             Delete
                           </button>
@@ -1281,23 +1325,33 @@ export default function AdminPage() {
                     </div>
                   ))}
                 </div>
+                </div>
               )}
             </div>
-          </section>
+          </section> : null}
 
-          <section className="rounded-3xl border border-(--border) bg-(--panel) p-8 shadow-lg shadow-slate-950/10">
+          {projectFormOpen ? <section className="w-full max-w-none rounded-3xl border border-(--border) bg-(--panel) p-8 shadow-lg shadow-slate-950/10">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-400">Project Editor</p>
                 <h2 className="mt-3 text-2xl font-semibold text-(--text-strong)">Add or update a project</h2>
               </div>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-full border border-slate-700/50 px-4 py-2 text-sm text-(--muted) transition hover:border-cyan-400 hover:text-cyan-200"
-              >
-                Reset form
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="rounded-full border border-slate-700/50 px-4 py-2 text-sm text-(--muted) transition hover:border-cyan-400 hover:text-cyan-200"
+                >
+                  Reset form
+                </button>
+                <button
+                  type="button"
+                  onClick={closeProjectForm}
+                  className="rounded-full border border-(--border) px-4 py-2 text-sm text-(--muted) transition hover:border-cyan-400 hover:text-cyan-200"
+                >
+                  Close
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -1390,7 +1444,7 @@ export default function AdminPage() {
                 {editingId ? "Update project" : "Create project"}
               </button>
             </form>
-          </section>
+          </section> : null}
         </div>
       ) : null}
       </main>
