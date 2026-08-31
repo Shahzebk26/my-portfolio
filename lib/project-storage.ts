@@ -30,6 +30,7 @@ type ProjectData = {
 
 const dataDirectory = path.join(process.cwd(), "data");
 const projectFile = path.join(dataDirectory, "projects.json");
+const uploadDirectory = path.join(process.cwd(), "public", "uploads");
 
 async function ensureProjectFile() {
   try {
@@ -43,7 +44,24 @@ async function ensureProjectFile() {
 export async function readProjects(): Promise<ProjectData[]> {
   await ensureProjectFile();
   const file = await fs.readFile(projectFile, "utf8");
-  return JSON.parse(file) as ProjectData[];
+  const projects = JSON.parse(file) as ProjectData[];
+
+  // Uploaded files are local runtime assets. If one was removed or the app
+  // was redeployed without it, do not send a broken URL to the browser.
+  return Promise.all(
+    projects.map(async (project) => {
+      if (!project.image?.startsWith("/uploads/")) return project;
+
+      const filename = project.image.slice("/uploads/".length);
+      const imagePath = path.join(uploadDirectory, filename);
+      try {
+        await fs.access(imagePath);
+        return project;
+      } catch {
+        return { ...project, image: "" };
+      }
+    }),
+  );
 }
 
 export async function writeProjects(projects: ProjectData[]) {
