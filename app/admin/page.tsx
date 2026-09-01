@@ -515,7 +515,7 @@ export default function AdminPage() {
       throw new Error(data.error || "Image upload failed.");
     }
 
-    return data.path as string;
+    return (data.dataUrl || data.path) as string;
   };
 
   const fetchSiteConfig = async () => {

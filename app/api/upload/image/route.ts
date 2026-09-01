@@ -34,5 +34,10 @@ export async function POST(request: Request) {
 
   await fs.writeFile(filePath, buffer);
 
-  return NextResponse.json({ path: `/uploads/${uniqueName}` });
+  // Runtime-written files are not guaranteed to be available as static
+  // assets on a deployed/serverless host. Keep a portable copy in the value
+  // saved with the project as well as the local development file.
+  const dataUrl = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+  return NextResponse.json({ path: `/uploads/${uniqueName}`, dataUrl });
 }
