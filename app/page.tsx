@@ -26,9 +26,9 @@ async function getSiteConfig() {
 export default async function Home() {
   const [siteConfig, content, allProjects] = await Promise.all([getSiteConfig(), readContent(), readProjects()]);
   const { hero, expertise, aboutTeaser, homeProjects, connect, contactPage } = content;
-  // Keep the homepage showcase to three cards, while allowing non-featured
-  // projects to fill the remaining slots when fewer than three are featured.
-  const showcaseProjects = allProjects.slice(0, 3);
+  // The carousel shows three cards at a time on desktop and lets visitors
+  // slide through the full project collection.
+  const showcaseProjects = allProjects;
 
   return (
     <SiteShell>
@@ -157,6 +157,14 @@ export default async function Home() {
           </div>
 
           <ProjectsCarousel projects={showcaseProjects} />
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/projects"
+              className="btn-primary inline-flex rounded-full px-6 py-3 text-sm font-semibold text-slate-950"
+            >
+              See all projects
+            </Link>
+          </div>
         </section>
       ) : null}
 

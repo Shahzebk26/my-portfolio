@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { Project } from "../../lib/project-storage";
 
 type ProjectsCarouselProps = {
@@ -11,22 +11,56 @@ type ProjectsCarouselProps = {
 
 export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
+  const isPausedRef = useRef(false);
 
-  const slide = (direction: -1 | 1) => {
+  const slide = useCallback((direction: -1 | 1) => {
     const carousel = carouselRef.current;
     const firstCard = carousel?.firstElementChild as HTMLElement | null;
     if (!carousel || !firstCard) return;
 
     const styles = window.getComputedStyle(carousel);
     const gap = Number.parseFloat(styles.columnGap || styles.gap || "0");
-    carousel.scrollBy({
-      left: direction * (firstCard.getBoundingClientRect().width + gap),
-      behavior: "smooth",
-    });
-  };
+    const distance = firstCard.getBoundingClientRect().width + gap;
+    const atStart = carousel.scrollLeft <= 1;
+    const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 1;
+
+    if (direction === 1 && atEnd) {
+      carousel.scrollTo({ left: 0, behavior: "smooth" });
+    } else if (direction === -1 && atStart) {
+      carousel.scrollTo({ left: carousel.scrollWidth, behavior: "smooth" });
+    } else {
+      carousel.scrollBy({ left: direction * distance, behavior: "smooth" });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (projects.length < 2) return;
+
+    const timer = window.setInterval(() => {
+      if (!isPausedRef.current) slide(1);
+    }, 4500);
+
+    return () => window.clearInterval(timer);
+  }, [projects.length, slide]);
 
   return (
-    <div className="relative mt-8">
+    <div
+      className="relative mt-8"
+      onMouseEnter={() => {
+        isPausedRef.current = true;
+      }}
+      onMouseLeave={() => {
+        isPausedRef.current = false;
+      }}
+      onFocus={() => {
+        isPausedRef.current = true;
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          isPausedRef.current = false;
+        }
+      }}
+    >
       <div
         ref={carouselRef}
         className="carousel-scrollbar-hidden flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth overscroll-x-contain"

@@ -421,6 +421,7 @@ export default function AdminPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [projectFormOpen, setProjectFormOpen] = useState(false);
+  const [savingProject, setSavingProject] = useState(false);
   const [form, setForm] = useState({ ...initialForm });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -732,30 +733,31 @@ export default function AdminPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (savingProject) return;
     setError(null);
-
-    const imagePath = imageFile ? await uploadImageFile(imageFile) : form.image;
-
-    const payload = {
-      title: form.title,
-      description: form.description,
-      stack: form.stack.split(",").map((item) => item.trim()).filter(Boolean),
-      category: form.category,
-      slug: form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""),
-      image: imagePath,
-      liveUrl: form.liveUrl,
-      featured: form.featured,
-      client: form.client,
-      year: form.year,
-      industry: form.industry,
-      overview: form.overview,
-      videoUrl: form.videoUrl,
-      keyFeatures: linesToList(form.keyFeatures),
-      gallery: linesToList(form.gallery),
-      stats: parseStats(form.stats),
-    };
+    setStatus(null);
+    setSavingProject(true);
 
     try {
+      const imagePath = imageFile ? await uploadImageFile(imageFile) : form.image;
+      const payload = {
+        title: form.title,
+        description: form.description,
+        stack: form.stack.split(",").map((item) => item.trim()).filter(Boolean),
+        category: form.category,
+        slug: form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""),
+        image: imagePath,
+        liveUrl: form.liveUrl,
+        featured: form.featured,
+        client: form.client,
+        year: form.year,
+        industry: form.industry,
+        overview: form.overview,
+        videoUrl: form.videoUrl,
+        keyFeatures: linesToList(form.keyFeatures),
+        gallery: linesToList(form.gallery),
+        stats: parseStats(form.stats),
+      };
       const endpoint = "/api/projects";
       const method = editingId ? "PUT" : "POST";
       const body = editingId ? { id: editingId, ...payload } : payload;
@@ -781,9 +783,11 @@ export default function AdminPage() {
       await fetchProjects(token ?? undefined);
       resetForm();
       setProjectFormOpen(false);
-      setStatus("Project saved.");
+      setStatus(editingId ? "Project updated successfully." : "Project created successfully.");
     } catch {
       setError("Unable to save project.");
+    } finally {
+      setSavingProject(false);
     }
   };
 
@@ -1440,8 +1444,13 @@ export default function AdminPage() {
                 placeholder={"/uploads/screen-1.jpg\n/uploads/screen-2.jpg"}
               />
 
-              <button type="submit" className="btn-primary inline-flex rounded-full px-6 py-3 text-sm font-semibold text-slate-950">
-                {editingId ? "Update project" : "Create project"}
+              <button
+                type="submit"
+                disabled={savingProject}
+                aria-busy={savingProject}
+                className="btn-primary inline-flex rounded-full px-6 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {savingProject ? "Saving project..." : editingId ? "Update project" : "Create project"}
               </button>
             </form>
           </section> : null}
