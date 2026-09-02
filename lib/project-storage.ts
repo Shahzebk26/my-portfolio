@@ -42,26 +42,32 @@ async function ensureProjectFile() {
 }
 
 export async function readProjects(): Promise<ProjectData[]> {
-  await ensureProjectFile();
-  const file = await fs.readFile(projectFile, "utf8");
-  const projects = JSON.parse(file) as ProjectData[];
+  try {
+    await ensureProjectFile();
+    const file = await fs.readFile(projectFile, "utf8");
+    const projects = JSON.parse(file) as ProjectData[];
 
-  // Uploaded files are local runtime assets. If one was removed or the app
-  // was redeployed without it, do not send a broken URL to the browser.
-  return Promise.all(
-    projects.map(async (project) => {
-      if (!project.image?.startsWith("/uploads/")) return project;
+    // Uploaded files are local runtime assets. If one was removed or the app
+    // was redeployed without it, do not send a broken URL to the browser.
+    return Promise.all(
+      projects.map(async (project) => {
+        if (!project.image?.startsWith("/uploads/")) return project;
 
-      const filename = project.image.slice("/uploads/".length);
-      const imagePath = path.join(uploadDirectory, filename);
-      try {
-        await fs.access(imagePath);
-        return project;
-      } catch {
-        return { ...project, image: "" };
-      }
-    }),
-  );
+        const filename = project.image.slice("/uploads/".length);
+        const imagePath = path.join(uploadDirectory, filename);
+        try {
+          await fs.access(imagePath);
+          return project;
+        } catch {
+          return { ...project, image: "" };
+        }
+      }),
+    );
+  } catch {
+    // Public pages should still load if Railway storage is unavailable or
+    // the file is temporarily invalid during an admin update.
+    return [];
+  }
 }
 
 export async function writeProjects(projects: ProjectData[]) {

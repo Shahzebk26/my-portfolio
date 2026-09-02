@@ -256,10 +256,16 @@ async function ensureContentFile() {
 }
 
 export async function readContent(): Promise<SiteContent> {
-  await ensureContentFile();
-  const raw = await fs.readFile(contentFile, "utf8");
-  const parsed = JSON.parse(raw);
-  return deepMerge(DEFAULT_CONTENT, parsed);
+  try {
+    await ensureContentFile();
+    const raw = await fs.readFile(contentFile, "utf8");
+    const parsed = JSON.parse(raw);
+    return deepMerge(DEFAULT_CONTENT, parsed);
+  } catch {
+    // Keep public pages renderable if runtime storage is unavailable or the
+    // JSON file was interrupted while being updated.
+    return DEFAULT_CONTENT;
+  }
 }
 
 export async function updateContent(patch: Partial<SiteContent>): Promise<SiteContent> {
