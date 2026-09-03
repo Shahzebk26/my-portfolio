@@ -27,11 +27,6 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
   };
 }
 
-export async function generateStaticParams() {
-  const projects = await readProjects();
-  return projects.map((project) => ({ slug: project.slug }));
-}
-
 export default async function ProjectDetailPage({ params }: PageProps<"/projects/[slug]">) {
   const { slug } = await params;
   const project = await getProject(slug);
