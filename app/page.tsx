@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import SiteShell from "./components/site-shell";
-import path from "path";
-import { readFile } from "fs/promises";
 import { readContent } from "../lib/content-storage";
 import { readProjects } from "../lib/project-storage";
+import { readSiteConfig } from "../lib/site-storage";
 import ConnectCard from "./components/connect-card";
 import ProjectsCarousel from "./components/projects-carousel";
 import ProductDeliveryMap from "./components/product-delivery-map";
@@ -13,18 +12,8 @@ import ProductDeliveryMap from "./components/product-delivery-map";
 // Always read the latest file when the homepage is requested.
 export const dynamic = "force-dynamic";
 
-async function getSiteConfig() {
-  try {
-    const filePath = path.join(process.cwd(), "data", "site.json");
-    const raw = await readFile(filePath, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return { profileImage: "/profile-illustration.svg" };
-  }
-}
-
 export default async function Home() {
-  const [siteConfig, content, allProjects] = await Promise.all([getSiteConfig(), readContent(), readProjects()]);
+  const [siteConfig, content, allProjects] = await Promise.all([readSiteConfig(), readContent(), readProjects()]);
   const { hero, expertise, aboutTeaser, homeProjects, connect, contactPage } = content;
   // The carousel shows three cards at a time on desktop and lets visitors
   // slide through the full project collection.

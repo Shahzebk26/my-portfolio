@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-import path from 'path';
-import { readFile, writeFile } from 'fs/promises';
 import { verifyAdminToken } from '@/lib/auth';
-
-const configFilePath = path.join(process.cwd(), 'data', 'site.json');
+import { readSiteConfig, updateSiteConfig } from '@/lib/site-storage';
 
 export async function GET() {
-  try {
-    const raw = await readFile(configFilePath, 'utf-8');
-    const json = JSON.parse(raw);
-    return NextResponse.json({ site: json });
-  } catch (err) {
-    return NextResponse.json({ site: { profileImage: '/profile-illustration.svg' } });
-  }
+  return NextResponse.json({ site: await readSiteConfig() });
 }
 
 export async function PUT(request: Request) {
@@ -27,10 +18,9 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const site = { profileImage: String(body.profileImage) };
-    await writeFile(configFilePath, JSON.stringify(site, null, 2), 'utf-8');
+    const site = await updateSiteConfig({ profileImage: String(body.profileImage) });
     return NextResponse.json({ site });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Unable to save site config.' }, { status: 500 });
   }
 }

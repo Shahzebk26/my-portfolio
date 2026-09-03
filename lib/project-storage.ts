@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { databaseEnabled, dbQuery } from "./database";
 
 export type ProjectStat = {
   label: string;
@@ -42,6 +43,30 @@ async function ensureProjectFile() {
 }
 
 export async function readProjects(): Promise<ProjectData[]> {
+  if (databaseEnabled) {
+    try {
+      const result = await dbQuery<{ data: ProjectData }>("SELECT data FROM portfolio_projects ORDER BY created_at ASC");
+      if (result.rows.length > 0) return result.rows.map((row) => row.data);
+
+      const fileProjects = await readFileProjects();
+      for (const project of fileProjects) {
+        await dbQuery(
+          `INSERT INTO portfolio_projects (id, slug, data, created_at, updated_at)
+           VALUES ($1, $2, $3::jsonb, COALESCE($4::timestamptz, NOW()), NOW())
+           ON CONFLICT (id) DO NOTHING`,
+          [project.id, project.slug, JSON.stringify(project), project.createdAt || null],
+        );
+      }
+      return fileProjects;
+    } catch {
+      return readFileProjects();
+    }
+  }
+
+  return readFileProjects();
+}
+
+async function readFileProjects(): Promise<ProjectData[]> {
   try {
     await ensureProjectFile();
     const file = await fs.readFile(projectFile, "utf8");
@@ -71,6 +96,18 @@ export async function readProjects(): Promise<ProjectData[]> {
 }
 
 export async function writeProjects(projects: ProjectData[]) {
+  if (databaseEnabled) {
+    await dbQuery("DELETE FROM portfolio_projects");
+    for (const project of projects) {
+      await dbQuery(
+        `INSERT INTO portfolio_projects (id, slug, data, created_at, updated_at)
+         VALUES ($1, $2, $3::jsonb, COALESCE($4::timestamptz, NOW()), NOW())`,
+        [project.id, project.slug, JSON.stringify(project), project.createdAt || null],
+      );
+    }
+    return;
+  }
+
   await ensureProjectFile();
   await fs.writeFile(projectFile, JSON.stringify(projects, null, 2), "utf8");
 }

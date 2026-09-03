@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { databaseEnabled, dbQuery } from "./database";
 
 export type SiteContent = {
   siteSettings: {
@@ -256,6 +257,26 @@ async function ensureContentFile() {
 }
 
 export async function readContent(): Promise<SiteContent> {
+  if (databaseEnabled) {
+    try {
+      const result = await dbQuery<{ value: Partial<SiteContent> }>("SELECT value FROM portfolio_documents WHERE key = $1", ["content"]);
+      if (result.rows[0]?.value) return deepMerge(DEFAULT_CONTENT, result.rows[0].value);
+
+      const fileContent = await readFileContent();
+      await dbQuery(
+        "INSERT INTO portfolio_documents (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO NOTHING",
+        ["content", JSON.stringify(fileContent)],
+      );
+      return fileContent;
+    } catch {
+      return readFileContent();
+    }
+  }
+
+  return readFileContent();
+}
+
+async function readFileContent(): Promise<SiteContent> {
   try {
     await ensureContentFile();
     const raw = await fs.readFile(contentFile, "utf8");
@@ -271,6 +292,17 @@ export async function readContent(): Promise<SiteContent> {
 export async function updateContent(patch: Partial<SiteContent>): Promise<SiteContent> {
   const existing = await readContent();
   const next = deepMerge(existing, patch);
+
+  if (databaseEnabled) {
+    await dbQuery(
+      `INSERT INTO portfolio_documents (key, value, updated_at)
+       VALUES ($1, $2::jsonb, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      ["content", JSON.stringify(next)],
+    );
+    return next;
+  }
+
   await fs.writeFile(contentFile, JSON.stringify(next, null, 2), "utf8");
   return next;
 }
