@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { databaseEnabled, dbQuery } from "./database";
+import { assertDatabaseConfigured, databaseEnabled, dbQuery } from "./database";
 
 export type SiteContent = {
   siteSettings: {
@@ -257,19 +257,19 @@ async function ensureContentFile() {
 }
 
 export async function readContent(): Promise<SiteContent> {
+  assertDatabaseConfigured();
   if (databaseEnabled) {
     try {
       const result = await dbQuery<{ value: Partial<SiteContent> }>("SELECT value FROM portfolio_documents WHERE key = $1", ["content"]);
       if (result.rows[0]?.value) return deepMerge(DEFAULT_CONTENT, result.rows[0].value);
 
-      const fileContent = await readFileContent();
       await dbQuery(
         "INSERT INTO portfolio_documents (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO NOTHING",
-        ["content", JSON.stringify(fileContent)],
+        ["content", JSON.stringify(DEFAULT_CONTENT)],
       );
-      return fileContent;
-    } catch {
-      return readFileContent();
+      return DEFAULT_CONTENT;
+    } catch (error) {
+      throw new Error("Unable to read content from PostgreSQL.", { cause: error });
     }
   }
 
@@ -290,6 +290,7 @@ async function readFileContent(): Promise<SiteContent> {
 }
 
 export async function updateContent(patch: Partial<SiteContent>): Promise<SiteContent> {
+  assertDatabaseConfigured();
   const existing = await readContent();
   const next = deepMerge(existing, patch);
 

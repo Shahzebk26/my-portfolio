@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { databaseEnabled, dbQuery } from "./database";
+import { assertDatabaseConfigured, databaseEnabled, dbQuery } from "./database";
 
 export type SiteConfig = { profileImage: string };
 
@@ -17,25 +17,26 @@ async function readFileConfig(): Promise<SiteConfig> {
 }
 
 export async function readSiteConfig(): Promise<SiteConfig> {
+  assertDatabaseConfigured();
   if (databaseEnabled) {
     try {
       const result = await dbQuery<{ value: SiteConfig }>("SELECT value FROM portfolio_documents WHERE key = $1", ["site"]);
       if (result.rows[0]?.value) return { ...fallbackConfig, ...result.rows[0].value };
 
-      const config = await readFileConfig();
       await dbQuery(
         "INSERT INTO portfolio_documents (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO NOTHING",
-        ["site", JSON.stringify(config)],
+        ["site", JSON.stringify(fallbackConfig)],
       );
-      return config;
-    } catch {
-      return readFileConfig();
+      return fallbackConfig;
+    } catch (error) {
+      throw new Error("Unable to read site settings from PostgreSQL.", { cause: error });
     }
   }
   return readFileConfig();
 }
 
 export async function updateSiteConfig(config: SiteConfig) {
+  assertDatabaseConfigured();
   if (databaseEnabled) {
     await dbQuery(
       `INSERT INTO portfolio_documents (key, value, updated_at)

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
+    "db:migrate-json": "node database/migrate-json.mjs",
     "lint": "eslint"
   },
   "dependencies": {

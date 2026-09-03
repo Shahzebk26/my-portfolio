@@ -3,6 +3,12 @@ import { Pool, type QueryResultRow } from "pg";
 const databaseUrl = process.env.DATABASE_URL;
 export const databaseEnabled = Boolean(databaseUrl);
 
+export function assertDatabaseConfigured() {
+  if (!databaseEnabled && process.env.NODE_ENV === "production") {
+    throw new Error("DATABASE_URL is required in production.");
+  }
+}
+
 const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
