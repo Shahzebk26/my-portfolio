@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import SiteShell from "../components/site-shell";
 import { readContent } from "../../lib/content-storage";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { aboutPage } = await readContent();
   return {

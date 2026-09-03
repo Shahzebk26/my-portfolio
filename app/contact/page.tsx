@@ -3,6 +3,8 @@ import SiteShell from "../components/site-shell";
 import ConnectCard from "../components/connect-card";
 import { readContent } from "../../lib/content-storage";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { contactPage } = await readContent();
   return {
