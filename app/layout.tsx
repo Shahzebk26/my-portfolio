@@ -3,6 +3,8 @@ import AnimatedBackground from "./components/animated-background";
 import { readContent } from "../lib/content-storage";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { siteSettings } = await readContent();
   return {

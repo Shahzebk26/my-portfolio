@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { readContent, updateContent } from "../../../lib/content-storage";
 import { verifyAdminToken } from "../../../lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const content = await readContent();
   return NextResponse.json({ content });
