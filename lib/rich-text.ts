@@ -1,5 +1,5 @@
 const allowedTags = new Set([
-  "p", "h2", "h3", "h4", "ul", "ol", "li", "strong", "b", "em", "i", "u", "blockquote", "a", "br", "pre", "code",
+  "p", "h2", "h3", "h4", "ul", "ol", "li", "strong", "b", "em", "i", "u", "s", "del", "blockquote", "a", "br", "pre", "code", "hr",
 ]);
 
 function isSafeHref(value: string) {
@@ -33,5 +33,5 @@ export function sanitizeRichTextHtml(input: string) {
 }
 
 export function hasRichTextMarkup(input: string) {
-  return /<\/?(?:p|h[2-4]|ul|ol|li|strong|b|em|i|u|blockquote|a|br|pre|code)\b/i.test(input);
+  return /<\/?(?:p|h[2-4]|ul|ol|li|strong|b|em|i|u|s|del|blockquote|a|br|pre|code|hr)\b/i.test(input);
 }
