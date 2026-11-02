@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readProjects } from "../../../lib/project-storage";
+import ProjectMediaTabs from "../../components/project-media-tabs";
 import SiteShell from "../../components/site-shell";
 import RichTextContent from "../../components/rich-text-content";
 
@@ -54,25 +55,7 @@ export default async function ProjectDetailPage({ params }: PageProps<"/projects
       {/* Hero media */}
       <section className="glass-panel relative mt-6 overflow-hidden rounded-[2rem] border border-(--border) bg-(--panel) shadow-2xl shadow-slate-950/20">
         <div className="relative aspect-video w-full">
-          {project.videoUrl ? (
-            <video
-              src={project.videoUrl}
-              poster={project.image || undefined}
-              controls
-              className="h-full w-full object-cover"
-            />
-          ) : project.image ? (
-            <Image
-              src={project.image}
-              alt={`${project.title} showcase`}
-              fill
-              unoptimized
-              priority
-              className="object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-(--panel-strong)" />
-          )}
+          <ProjectMediaTabs title={project.title} image={project.image} videoUrl={project.videoUrl} />
         </div>
         {project.featured ? (
           <span className="absolute right-5 top-5 rounded-full bg-cyan-500/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">
