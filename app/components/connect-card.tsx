@@ -127,10 +127,10 @@ export default function ConnectCard({ connect, fallbackEmail, extraMethods = [] 
               href={connect.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-5 py-3 text-sm font-semibold text-emerald-300 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500/20"
+              className="mt-2 flex w-full items-center justify-center gap-4 rounded-[1.25rem] border border-emerald-500/35 bg-emerald-950/25 px-5 py-5 text-center text-lg font-bold uppercase tracking-[0.06em] text-slate-200 transition hover:border-emerald-400 hover:bg-emerald-950/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
-              <WhatsAppIcon />
-              {connect.whatsappLabel}
+              <span className="text-emerald-400"><WhatsAppIcon /></span>
+              Connect on WhatsApp
             </a>
           ) : null}
         </div>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import SiteShell from "../components/site-shell";
 import ConnectCard from "../components/connect-card";
-import ContactForm from "../components/contact-form";
 import { readContent } from "../../lib/content-storage";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +24,12 @@ export default async function ContactPage() {
           <p className="mt-4 text-lg leading-8 text-[color:var(--muted)]">
             {contactPage.description}
           </p>
-          <ContactForm email={contactPage.email} whatsappUrl={connect.whatsappUrl} phone={connect.phone} />
+          <a
+            href={`mailto:${contactPage.email}`}
+            className="btn-primary mt-8 inline-flex rounded-full px-6 py-3 font-semibold text-slate-950"
+          >
+            {contactPage.ctaLabel}
+          </a>
 
           {connect.features.length > 0 ? (
             <div className="mt-10 space-y-6 border-t border-[color:var(--border)] pt-8">
