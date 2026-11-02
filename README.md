@@ -2,23 +2,24 @@
 
 ## Local development
 
-Install dependencies and start Next.js:
-
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Copy `.env.example` to `.env.local` and set your own values. Without `DATABASE_URL`, local development uses JSON files in `data/`.
+Open `http://localhost:3000`. Copy `.env.example` to `.env.local`. Without `DATABASE_URL`, local development uses JSON files in `data/`.
 
-## Deploy on Vercel
+## Deploy and connect PostgreSQL on Vercel
 
-This app needs a server runtime; do not enable Static Exports.
+The project uses PostgreSQL through the `pg` package and reads the connection string from `DATABASE_URL`. Vercel does not provision a new built-in Postgres database; add a Marketplace provider such as Neon, Supabase, or AWS Aurora Postgres. The provider integration can add its connection variables to your Vercel project automatically.
 
-1. Push the repository to GitHub and import it in Vercel. Keep the repository root as the project root and use the default Next.js settings. The build command is `npm run build`.
-2. Create a PostgreSQL database reachable from Vercel. Add its external/TLS connection string as `DATABASE_URL` in Vercel Project Settings → Environment Variables. Provider-internal hostnames (such as `*.railway.internal`) cannot be reached from Vercel.
-3. Set `ADMIN_PASSWORD` and `ADMIN_TOKEN` as server-only variables. Choose unique, strong values; generate a token with a password manager or `openssl rand -hex 32`. Never prefix secrets with `NEXT_PUBLIC_`.
-4. For admin image uploads, add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Uploads are disabled in production when these variables are missing because serverless local disk is ephemeral.
-5. Add the variables to the environments where you need them (Production, Preview, and Development), then deploy. PostgreSQL tables are created automatically on first use. To import the checked-in JSON content into the database, run `npm run db:migrate-json` locally with `DATABASE_URL` set to the same database.
+1. In the Vercel dashboard, open **Storage/Marketplace**, select **Neon Postgres** (or another PostgreSQL provider), provision a database, and connect it to the `my-portfolio-ag92` project. Use the pooled/runtime connection URL if the provider supplies one.
+2. In **Project → Settings → Environment Variables**, confirm a server-only `DATABASE_URL` exists for **Production**. It must be the real external PostgreSQL URL supplied by the provider, not the placeholder, and not a private host such as `*.railway.internal`. Do not expose it with a `NEXT_PUBLIC_` prefix.
+3. Add `ADMIN_PASSWORD` and `ADMIN_TOKEN` as server-only Production variables. Use unique strong values. The app refuses admin authentication in production if either value is missing.
+4. For admin image uploads, add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Vercel function disk is temporary, so Cloudinary is required for persistent uploads.
+5. Redeploy after connecting the database or changing variables. Verify `https://YOUR_DEPLOYMENT/api/health` returns `{"ok":true,"database":"connected"}`. A 503 means the variable is missing/invalid, the host is unreachable, TLS/authentication failed, or the database role cannot create the app tables. The check does not expose credentials.
+6. On first database use the app creates its tables. To load the repository's JSON content and projects, run `npm run db:migrate-json` from your computer with `DATABASE_URL` temporarily set to that same database URL. Do not run this against a production database unless you intend to import/overwrite the seeded content. Then redeploy or reload the site.
 
-`.env.example` lists variable names with safe placeholders. Never commit real credentials. Any credentials previously placed in a committed env file should be rotated with their providers.
+Vercel environment variable changes only apply to new deployments. Configure Preview separately if you want working preview deployments, then redeploy. The project is a server-rendered Next.js app; do not use Static Export.
+
+The checked-in `.env.example` contains variable names only. Never commit real database, Cloudinary, or admin credentials. Rotate any secrets previously committed.

@@ -12,7 +12,8 @@ export function assertDatabaseConfigured() {
 const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
-      ssl: databaseUrl.includes("railway") || databaseUrl.includes("neon") ? { rejectUnauthorized: false } : undefined,
+      // Let pg honor the provider URL's sslmode and certificate settings. A
+      // provider-specific hostname check can override connection-string TLS.
       max: 5,
     })
   : null;

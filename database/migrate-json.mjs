@@ -12,7 +12,6 @@ if (!databaseUrl) {
 
 const pool = new pg.Pool({
   connectionString: databaseUrl,
-  ssl: databaseUrl.includes("railway") || databaseUrl.includes("neon") ? { rejectUnauthorized: false } : undefined,
 });
 
 try {
