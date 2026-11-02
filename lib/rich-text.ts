@@ -35,3 +35,79 @@ export function sanitizeRichTextHtml(input: string) {
 export function hasRichTextMarkup(input: string) {
   return /<\/?(?:p|h[2-4]|ul|ol|li|strong|b|em|i|u|s|del|blockquote|a|br|pre|code|hr)\b/i.test(input);
 }
+
+function escapeText(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escapeAttribute(value: string) {
+  return escapeText(value).replace(/"/g, "&quot;");
+}
+
+function wrapMarks(html: string, marks: string[]) {
+  return marks.reduceRight((content, mark) => `<${mark}>${content}</${mark}>`, html);
+}
+
+/** Convert clipboard HTML, including common inline styles, into supported semantic markup. */
+export function normalizePastedRichTextHtml(input: string) {
+  const parsed = new DOMParser().parseFromString(input, "text/html");
+
+  const serialize = (node: Node): string => {
+    if (node.nodeType === Node.TEXT_NODE) return escapeText(node.textContent ?? "");
+    if (!(node instanceof Element)) return "";
+
+    const tag = node.tagName.toLowerCase();
+    if (["script", "style", "iframe", "object", "embed", "svg", "math"].includes(tag)) return "";
+
+    const style = node.getAttribute("style") ?? "";
+    const fontWeight = style.match(/font-weight\s*:\s*([^;]+)/i)?.[1]?.trim() ?? "";
+    const fontSize = style.match(/font-size\s*:\s*([^;]+)/i)?.[1]?.trim() ?? "";
+    const marks: string[] = [];
+    if (fontWeight === "bold" || fontWeight === "bolder" || (Number.parseInt(fontWeight, 10) >= 600)) marks.push("strong");
+    if (/font-style\s*:\s*italic/i.test(style)) marks.push("em");
+    if (/text-decoration(?:-line)?\s*:[^;]*underline/i.test(style)) marks.push("u");
+    if (/text-decoration(?:-line)?\s*:[^;]*(?:line-through|strike)/i.test(style)) marks.push("s");
+
+    let children = Array.from(node.childNodes).map(serialize).join("");
+    const headingClass = `${node.className ?? ""} ${node.getAttribute("data-contrast") ?? ""}`;
+    const largeBoldText = marks.includes("strong") && /(?:24px|1\.[4-9]\w*|[2-9]\dpt)/i.test(fontSize);
+    let outputTag = tag;
+
+    if (/title|heading|subtitle/i.test(headingClass) || largeBoldText) {
+      outputTag = /subtitle|heading[3-6]/i.test(headingClass) || /(?:18|20|1\.[2-3]\w*|1\dpt)/i.test(fontSize) ? "h3" : "h2";
+    } else if (tag === "div") {
+      outputTag = "p";
+    } else if (tag === "h1") {
+      outputTag = "h2";
+    } else if (tag === "h5" || tag === "h6") {
+      outputTag = "h3";
+    }
+
+    if (tag === "a") {
+      const href = node.getAttribute("href") ?? "";
+      const safeOpen = isSafeHref(href);
+      children = safeOpen ? `<a href="${escapeAttribute(href)}">${children}</a>` : children;
+    } else if (["span", "font"].includes(tag)) {
+      // These wrappers commonly carry Word/website inline styles instead of semantic tags.
+      children = wrapMarks(children, marks);
+    } else if (allowedTags.has(outputTag)) {
+      if (outputTag === "br" || outputTag === "hr") {
+        children = `<${outputTag}>`;
+      } else {
+        children = `<${outputTag}>${children}</${outputTag}>`;
+      }
+    }
+
+    if (tag !== "a" && !["span", "font"].includes(tag) && !allowedTags.has(outputTag)) {
+      children = wrapMarks(children, marks);
+    }
+
+    // Marks attached to block elements apply to their contents, not to the block tag.
+    if (["p", "div", "h1", "h2", "h3", "h4", "h5", "h6"].includes(tag)) {
+      children = wrapMarks(children, marks);
+    }
+    return children;
+  };
+
+  return Array.from(parsed.body.childNodes).map(serialize).join("");
+}

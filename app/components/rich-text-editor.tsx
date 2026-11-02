@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { sanitizeRichTextHtml } from "../../lib/rich-text";
+import { normalizePastedRichTextHtml, sanitizeRichTextHtml } from "../../lib/rich-text";
 
 type Props = {
   value: string;
@@ -24,10 +24,10 @@ export default function RichTextEditor({ value, onChange }: Props) {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: "tiptap min-h-64 p-4 text-base leading-7 text-(--text-strong) outline-none",
+        class: "tiptap min-h-64 p-4 text-base leading-7 text-(--text-strong) outline-none [&_a]:text-cyan-300 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-cyan-400 [&_blockquote]:pl-4 [&_code]:rounded [&_code]:bg-(--panel) [&_code]:px-1 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_li]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:bg-(--panel) [&_pre]:p-4 [&_ul]:list-disc [&_hr]:my-5 [&_hr]:border-(--border)",
         "aria-label": "Project overview rich text editor",
       },
-      transformPastedHTML: (html) => sanitizeRichTextHtml(html),
+      transformPastedHTML: normalizePastedRichTextHtml,
     },
     onUpdate: ({ editor: currentEditor }) => {
       onChange(sanitizeRichTextHtml(currentEditor.getHTML()));
