@@ -31,7 +31,7 @@ function PhoneIcon() {
 
 function WhatsAppIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="currentColor">
+    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" fill="currentColor" aria-hidden="true">
       <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.1 8.1 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8 1-.2.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4L9.8 8c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.3 1 2.5.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.5.6.2 1.1.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.2-.4-.3Z" />
     </svg>
   );
@@ -127,7 +127,7 @@ export default function ConnectCard({ connect, fallbackEmail, extraMethods = [] 
               href={connect.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 flex w-full items-center justify-center gap-4 rounded-[1.25rem] border border-emerald-500/35 bg-emerald-950/25 px-5 py-5 text-center text-lg font-bold uppercase tracking-[0.06em] text-slate-200 transition hover:border-emerald-400 hover:bg-emerald-950/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              className="mt-2 flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-[1.25rem] border border-emerald-500/35 bg-emerald-950/25 px-3 py-4 text-center text-sm font-bold leading-tight uppercase tracking-[0.04em] text-slate-200 transition hover:border-emerald-400 hover:bg-emerald-950/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:min-h-[72px] sm:gap-3 sm:px-5 sm:py-5 sm:text-base sm:tracking-[0.06em] md:text-lg"
             >
               <span className="text-emerald-400"><WhatsAppIcon /></span>
               Connect on WhatsApp
