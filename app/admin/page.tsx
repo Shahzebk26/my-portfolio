@@ -42,7 +42,6 @@ const initialForm = {
   overview: "",
   videoUrl: "",
   keyFeatures: "",
-  gallery: "",
   stats: "",
 };
 
@@ -424,6 +423,7 @@ export default function AdminPage() {
   const [savingProject, setSavingProject] = useState(false);
   const [form, setForm] = useState({ ...initialForm });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [siteProfileImage, setSiteProfileImage] = useState("/profile-illustration.svg");
   const [siteImageFile, setSiteImageFile] = useState<File | null>(null);
@@ -499,6 +499,7 @@ export default function AdminPage() {
     setEditingId(null);
     setForm({ ...initialForm });
     setImageFile(null);
+    setVideoFile(null);
     setImagePreview("");
   };
 
@@ -508,6 +509,7 @@ export default function AdminPage() {
 
     const response = await fetch("/api/upload/image", {
       method: "POST",
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
       body: formData,
     });
 
@@ -517,6 +519,39 @@ export default function AdminPage() {
     }
 
     return (data.dataUrl || data.path) as string;
+  };
+
+  const uploadVideoFile = async (file: File) => {
+    if (!file.type.startsWith("video/")) {
+      throw new Error("Choose a supported video file, such as MP4, WebM, or MOV.");
+    }
+
+    const signatureResponse = await fetch("/api/upload/signature", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ resourceType: "video" }),
+    });
+    const signatureData = await signatureResponse.json().catch(() => ({}));
+    if (!signatureResponse.ok) {
+      throw new Error(signatureData.error || "Unable to prepare the Cloudinary video upload.");
+    }
+
+    const uploadForm = new FormData();
+    uploadForm.append("file", file);
+    uploadForm.append("api_key", signatureData.apiKey);
+    uploadForm.append("timestamp", String(signatureData.timestamp));
+    uploadForm.append("folder", signatureData.folder);
+    uploadForm.append("signature", signatureData.signature);
+
+    const cloudResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(signatureData.cloudName)}/video/upload`,
+      { method: "POST", body: uploadForm },
+    );
+    const cloudData = await cloudResponse.json().catch(() => ({}));
+    if (!cloudResponse.ok || !cloudData.secure_url) {
+      throw new Error(cloudData.error?.message || "Cloudinary could not upload this video.");
+    }
+    return String(cloudData.secure_url);
   };
 
   const fetchSiteConfig = async () => {
@@ -740,6 +775,7 @@ export default function AdminPage() {
 
     try {
       const imagePath = imageFile ? await uploadImageFile(imageFile) : form.image;
+      const videoUrl = videoFile ? await uploadVideoFile(videoFile) : form.videoUrl;
       const payload = {
         title: form.title,
         description: form.description,
@@ -753,9 +789,8 @@ export default function AdminPage() {
         year: form.year,
         industry: form.industry,
         overview: form.overview,
-        videoUrl: form.videoUrl,
+        videoUrl,
         keyFeatures: linesToList(form.keyFeatures),
-        gallery: linesToList(form.gallery),
         stats: parseStats(form.stats),
       };
       const endpoint = "/api/projects";
@@ -767,7 +802,7 @@ export default function AdminPage() {
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 401) {
           window.localStorage.removeItem("portfolio-admin-token");
@@ -784,8 +819,8 @@ export default function AdminPage() {
       resetForm();
       setProjectFormOpen(false);
       setStatus(editingId ? "Project updated successfully." : "Project created successfully.");
-    } catch {
-      setError("Unable to save project.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to save project.");
     } finally {
       setSavingProject(false);
     }
@@ -837,10 +872,10 @@ export default function AdminPage() {
       overview: project.overview ?? "",
       videoUrl: project.videoUrl ?? "",
       keyFeatures: Array.isArray(project.keyFeatures) ? project.keyFeatures.join("\n") : "",
-      gallery: Array.isArray(project.gallery) ? project.gallery.join("\n") : "",
       stats: Array.isArray(project.stats) ? project.stats.map((s) => `${s.label}: ${s.value}`).join("\n") : "",
     });
     setImageFile(null);
+    setVideoFile(null);
     setImagePreview(project.image ?? "");
   };
 
@@ -1421,7 +1456,23 @@ export default function AdminPage() {
                 height="h-28"
                 placeholder="Longer write-up shown on the project page. Falls back to the short description above if left blank."
               />
-              <TextField label="Video URL (optional, replaces hero image)" value={form.videoUrl} onChange={(v) => setForm((prev) => ({ ...prev, videoUrl: v }))} placeholder="https://example.com/demo.mp4" />
+              <div>
+                <label className="text-sm font-semibold text-(--text-strong)">Upload project video (optional)</label>
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={(event) => setVideoFile(event.target.files?.[0] ?? null)}
+                  className={fieldInputClass}
+                />
+                {videoFile ? <p className="mt-2 text-sm text-(--muted)">Selected: {videoFile.name}</p> : null}
+                {!videoFile && form.videoUrl ? (
+                  <div className="mt-3 flex items-center gap-3">
+                    <a href={form.videoUrl} target="_blank" rel="noreferrer" className="text-sm text-cyan-300 underline">Current video</a>
+                    <button type="button" onClick={() => setForm((prev) => ({ ...prev, videoUrl: "" }))} className="text-sm text-red-300">Remove video</button>
+                  </div>
+                ) : null}
+                <p className="mt-2 text-xs text-(--muted)">MP4, WebM, or MOV uploads go directly to Cloudinary.</p>
+              </div>
               <TextAreaField
                 label='Key metrics (one per line, "label: value")'
                 value={form.stats}
@@ -1436,14 +1487,6 @@ export default function AdminPage() {
                 height="h-28"
                 placeholder={"Responsive design\nSecure checkout\nAdmin dashboard"}
               />
-              <TextAreaField
-                label="Gallery image URLs (one per line)"
-                value={form.gallery}
-                onChange={(v) => setForm((prev) => ({ ...prev, gallery: v }))}
-                height="h-24"
-                placeholder={"/uploads/screen-1.jpg\n/uploads/screen-2.jpg"}
-              />
-
               <button
                 type="submit"
                 disabled={savingProject}

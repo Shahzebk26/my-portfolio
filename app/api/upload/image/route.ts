@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
+import { verifyAdminToken } from "../../../../lib/auth";
 
 const uploadDirectory = path.join(process.cwd(), "public", "uploads");
 
@@ -14,6 +15,11 @@ function sanitizeFilename(filename: string) {
 }
 
 export async function POST(request: Request) {
+  const auth = request.headers.get("authorization") ?? "";
+  if (!verifyAdminToken(auth.replace(/^Bearer\s+/i, ""))) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const file = formData.get("image") as File | null;
 

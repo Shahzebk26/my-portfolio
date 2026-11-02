@@ -117,20 +117,45 @@ function createSlug(value: string) {
 }
 
 export async function addProject(project: Omit<ProjectData, "id" | "createdAt" | "slug"> & { slug?: string }): Promise<ProjectData> {
-  const existing = await readProjects();
   const next: ProjectData = {
     id: createId(),
     createdAt: new Date().toISOString(),
     slug: project.slug || createSlug(project.title),
     ...project,
   } as ProjectData;
+
+  assertDatabaseConfigured();
+  if (databaseEnabled) {
+    await dbQuery(
+      `INSERT INTO portfolio_projects (id, slug, data, created_at, updated_at)
+       VALUES ($1, $2, $3::jsonb, $4::timestamptz, NOW())`,
+      [next.id, next.slug, JSON.stringify(next), next.createdAt],
+    );
+    return next;
+  }
+
+  const existing = await readFileProjects();
   existing.push(next);
   await writeProjects(existing);
   return next;
 }
 
 export async function updateProject(id: string, project: Partial<Omit<ProjectData, "id" | "createdAt">>): Promise<ProjectData | null> {
-  const existing = await readProjects();
+  assertDatabaseConfigured();
+  if (databaseEnabled) {
+    const result = await dbQuery<{ data: ProjectData }>("SELECT data FROM portfolio_projects WHERE id = $1", [id]);
+    const current = result.rows[0]?.data;
+    if (!current) return null;
+    const updated = { ...current, ...project };
+    if (project.title && !project.slug) updated.slug = createSlug(project.title);
+    await dbQuery(
+      "UPDATE portfolio_projects SET slug = $2, data = $3::jsonb, updated_at = NOW() WHERE id = $1",
+      [id, updated.slug, JSON.stringify(updated)],
+    );
+    return updated;
+  }
+
+  const existing = await readFileProjects();
   const index = existing.findIndex((item) => item.id === id);
   if (index === -1) return null;
   const updated = { ...existing[index], ...project };
@@ -143,7 +168,13 @@ export async function updateProject(id: string, project: Partial<Omit<ProjectDat
 }
 
 export async function deleteProject(id: string): Promise<boolean> {
-  const existing = await readProjects();
+  assertDatabaseConfigured();
+  if (databaseEnabled) {
+    const result = await dbQuery("DELETE FROM portfolio_projects WHERE id = $1 RETURNING id", [id]);
+    return result.rowCount === 1;
+  }
+
+  const existing = await readFileProjects();
   const next = existing.filter((item) => item.id !== id);
   if (next.length === existing.length) return false;
   await writeProjects(next);

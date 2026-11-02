@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required project fields." }, { status: 400 });
   }
 
-  const project = await addProject({
+  try {
+    const project = await addProject({
     title: String(body.title),
     description: String(body.description),
     stack: Array.isArray(body.stack) ? body.stack.map(String) : String(body.stack).split(",").map((item) => item.trim()),
@@ -53,11 +54,16 @@ export async function POST(request: Request) {
           .map((item: { label?: unknown; value?: unknown }) => ({ label: String(item.label ?? ""), value: String(item.value ?? "") }))
           .filter((item: { label: string; value: string }) => item.label && item.value)
       : undefined,
-  });
+    });
 
-  revalidateProjectPages(project.slug);
+    revalidateProjectPages(project.slug);
 
-  return NextResponse.json({ project }, { status: 201 });
+    return NextResponse.json({ project }, { status: 201 });
+  } catch (error) {
+    console.error("Unable to create project.", error);
+    const message = error instanceof Error ? error.message : "Unknown storage error.";
+    return NextResponse.json({ error: `Unable to save project: ${message}` }, { status: 503 });
+  }
 }
 
 export async function PUT(request: Request) {
@@ -71,7 +77,8 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Project id is required." }, { status: 400 });
   }
 
-  const project = await updateProject(body.id, {
+  try {
+    const updates = {
     title: body.title ? String(body.title) : undefined,
     description: body.description ? String(body.description) : undefined,
     stack: body.stack
@@ -90,21 +97,29 @@ export async function PUT(request: Request) {
     overview: body.overview !== undefined ? String(body.overview) : undefined,
     videoUrl: body.videoUrl !== undefined ? String(body.videoUrl) : undefined,
     keyFeatures: Array.isArray(body.keyFeatures) ? body.keyFeatures.map(String).filter(Boolean) : undefined,
-    gallery: Array.isArray(body.gallery) ? body.gallery.map(String).filter(Boolean) : undefined,
     stats: Array.isArray(body.stats)
       ? body.stats
           .map((item: { label?: unknown; value?: unknown }) => ({ label: String(item.label ?? ""), value: String(item.value ?? "") }))
           .filter((item: { label: string; value: string }) => item.label && item.value)
       : undefined,
-  });
+    };
+    if (Array.isArray(body.gallery)) {
+      Object.assign(updates, { gallery: body.gallery.map(String).filter(Boolean) });
+    }
+    const project = await updateProject(body.id, updates);
 
-  if (!project) {
-    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
+    revalidateProjectPages(project.slug);
+
+    return NextResponse.json({ project });
+  } catch (error) {
+    console.error("Unable to update project.", error);
+    const message = error instanceof Error ? error.message : "Unknown storage error.";
+    return NextResponse.json({ error: `Unable to save project: ${message}` }, { status: 503 });
   }
-
-  revalidateProjectPages(project.slug);
-
-  return NextResponse.json({ project });
 }
 
 export async function DELETE(request: Request) {
