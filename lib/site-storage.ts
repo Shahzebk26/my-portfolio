@@ -29,7 +29,8 @@ export async function readSiteConfig(): Promise<SiteConfig> {
       );
       return fallbackConfig;
     } catch (error) {
-      throw new Error("Unable to read site settings from PostgreSQL.", { cause: error });
+      console.error("Unable to read site settings from PostgreSQL; serving the default profile image.", error);
+      return fallbackConfig;
     }
   }
   return readFileConfig();

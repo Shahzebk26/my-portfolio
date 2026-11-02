@@ -49,7 +49,8 @@ export async function readProjects(): Promise<ProjectData[]> {
       const result = await dbQuery<{ data: ProjectData }>("SELECT data FROM portfolio_projects ORDER BY created_at ASC");
       return result.rows.map((row) => row.data);
     } catch (error) {
-      throw new Error("Unable to read projects from PostgreSQL.", { cause: error });
+      console.error("Unable to read projects from PostgreSQL; serving an empty project list.", error);
+      return [];
     }
   }
 

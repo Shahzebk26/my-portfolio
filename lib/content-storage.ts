@@ -269,7 +269,8 @@ export async function readContent(): Promise<SiteContent> {
       );
       return DEFAULT_CONTENT;
     } catch (error) {
-      throw new Error("Unable to read content from PostgreSQL.", { cause: error });
+      console.error("Unable to read content from PostgreSQL; serving default content.", error);
+      return DEFAULT_CONTENT;
     }
   }
 
