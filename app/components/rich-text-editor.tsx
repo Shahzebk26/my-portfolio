@@ -64,12 +64,21 @@ export default function RichTextEditor({ value, onChange }: Props) {
         }}
         onPaste={(event) => {
           event.preventDefault();
-          const plainText = event.clipboardData.getData("text/plain");
-          document.execCommand("insertText", false, plainText);
+          const pastedHtml = event.clipboardData.getData("text/html");
+          if (pastedHtml) {
+            const safeHtml = sanitizeRichTextHtml(pastedHtml);
+            if (safeHtml) {
+              document.execCommand("insertHTML", false, safeHtml);
+            } else {
+              document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));
+            }
+          } else {
+            document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));
+          }
         }}
         className="min-h-52 whitespace-pre-wrap p-4 text-base leading-7 text-(--text-strong) outline-none [&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-xl [&_h3]:font-semibold [&_li]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_ul]:list-disc"
       />
-      <p className="border-t border-(--border) px-4 py-2 text-xs text-(--muted)">Use headings, lists, bold, italic, underline, and links. Pasted text is kept as plain text.</p>
+      <p className="border-t border-(--border) px-4 py-2 text-xs text-(--muted)">Pasting formatted text preserves supported headings, paragraphs, lists, emphasis, and safe links.</p>
     </div>
   );
 }
