@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readProjects } from "../../../lib/project-storage";
 import SiteShell from "../../components/site-shell";
+import RichTextContent from "../../components/rich-text-content";
 
 // Newly created slugs must be resolved from the current project file.
 export const dynamic = "force-dynamic";
@@ -109,7 +110,7 @@ export default async function ProjectDetailPage({ params }: PageProps<"/projects
           <div className="glass-panel rounded-3xl border border-(--border) bg-(--panel) p-8 shadow-lg shadow-slate-950/10">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">About the project</p>
             <h2 className="mt-3 text-2xl font-semibold text-(--text-strong)">Project overview</h2>
-            <p className="mt-4 whitespace-pre-line text-base leading-8 text-(--muted)">{overview}</p>
+            <RichTextContent content={overview} />
           </div>
 
           {keyFeatures.length > 0 ? (

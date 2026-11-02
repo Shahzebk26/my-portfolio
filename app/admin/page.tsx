@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import type { SiteContent } from "../../lib/content-storage";
+import RichTextEditor from "../components/rich-text-editor";
 
 type ProjectStat = { label: string; value: string };
 
@@ -1433,13 +1434,10 @@ export default function AdminPage() {
                 <TextField label="Year" value={form.year} onChange={(v) => setForm((prev) => ({ ...prev, year: v }))} placeholder="2026" />
               </div>
 
-              <TextAreaField
-                label="Overview (long description)"
-                value={form.overview}
-                onChange={(v) => setForm((prev) => ({ ...prev, overview: v }))}
-                height="h-28"
-                placeholder="Longer write-up shown on the project page. Falls back to the short description above if left blank."
-              />
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-(--text-strong)">Project overview (rich text)</label>
+                <RichTextEditor value={form.overview} onChange={(value) => setForm((prev) => ({ ...prev, overview: value }))} />
+              </div>
               <div>
                 <label className="text-sm font-semibold text-(--text-strong)">Upload project video (optional)</label>
                 <input
