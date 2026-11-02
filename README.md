@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shahzeb Portfolio
 
-## Getting Started
+## Local development
 
-First, run the development server:
+Install dependencies and start Next.js:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000). Copy `.env.example` to `.env.local` and set your own values. Without `DATABASE_URL`, local development uses JSON files in `data/`.
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app needs a server runtime; do not enable Static Exports.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push the repository to GitHub and import it in Vercel. Keep the repository root as the project root and use the default Next.js settings. The build command is `npm run build`.
+2. Create a PostgreSQL database reachable from Vercel. Add its external/TLS connection string as `DATABASE_URL` in Vercel Project Settings → Environment Variables. Provider-internal hostnames (such as `*.railway.internal`) cannot be reached from Vercel.
+3. Set `ADMIN_PASSWORD` and `ADMIN_TOKEN` as server-only variables. Choose unique, strong values; generate a token with a password manager or `openssl rand -hex 32`. Never prefix secrets with `NEXT_PUBLIC_`.
+4. For admin image uploads, add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. Uploads are disabled in production when these variables are missing because serverless local disk is ephemeral.
+5. Add the variables to the environments where you need them (Production, Preview, and Development), then deploy. PostgreSQL tables are created automatically on first use. To import the checked-in JSON content into the database, run `npm run db:migrate-json` locally with `DATABASE_URL` set to the same database.
+
+`.env.example` lists variable names with safe placeholders. Never commit real credentials. Any credentials previously placed in a committed env file should be rotated with their providers.

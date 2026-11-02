@@ -29,6 +29,10 @@ export async function POST(request: Request) {
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
+  if (process.env.NODE_ENV === "production" && (!cloudName || !apiKey || !apiSecret)) {
+    return NextResponse.json({ error: "Image uploads are not configured. Set the Cloudinary environment variables." }, { status: 503 });
+  }
+
   if (cloudName && apiKey && apiSecret) {
     const timestamp = Math.floor(Date.now() / 1000);
     const folder = "portfolio";

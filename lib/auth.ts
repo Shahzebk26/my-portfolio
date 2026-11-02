@@ -1,14 +1,23 @@
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "PortfolioAdmin123";
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "portfolio-admin-token";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
+
+function assertAdminCredentialsConfigured() {
+  if (process.env.NODE_ENV === "production" && (!ADMIN_PASSWORD || !ADMIN_TOKEN)) {
+    throw new Error("ADMIN_PASSWORD and ADMIN_TOKEN are required in production.");
+  }
+}
 
 export function validateAdminPassword(password: string) {
-  return password === ADMIN_PASSWORD;
+  assertAdminCredentialsConfigured();
+  return Boolean(ADMIN_PASSWORD) && password === ADMIN_PASSWORD;
 }
 
 export function createAdminToken() {
-  return ADMIN_TOKEN;
+  assertAdminCredentialsConfigured();
+  return ADMIN_TOKEN || "";
 }
 
 export function verifyAdminToken(token: string) {
-  return token === ADMIN_TOKEN;
+  assertAdminCredentialsConfigured();
+  return Boolean(ADMIN_TOKEN) && token === ADMIN_TOKEN;
 }
