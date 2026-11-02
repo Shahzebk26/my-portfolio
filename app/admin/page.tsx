@@ -503,33 +503,14 @@ export default function AdminPage() {
     setImagePreview("");
   };
 
-  const uploadImageFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const response = await fetch("/api/upload/image", {
-      method: "POST",
-      headers: { Authorization: token ? `Bearer ${token}` : "" },
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Image upload failed.");
+  const uploadToCloudinary = async (file: File, resourceType: "image" | "video") => {
+    if (!file.type.startsWith(`${resourceType}/`)) {
+      throw new Error(resourceType === "image" ? "Choose an image file." : "Choose a supported video file, such as MP4, WebM, or MOV.");
     }
-
-    return (data.dataUrl || data.path) as string;
-  };
-
-  const uploadVideoFile = async (file: File) => {
-    if (!file.type.startsWith("video/")) {
-      throw new Error("Choose a supported video file, such as MP4, WebM, or MOV.");
-    }
-
     const signatureResponse = await fetch("/api/upload/signature", {
       method: "POST",
       headers: authHeaders(),
-      body: JSON.stringify({ resourceType: "video" }),
+      body: JSON.stringify({ resourceType }),
     });
     const signatureData = await signatureResponse.json().catch(() => ({}));
     if (!signatureResponse.ok) {
@@ -544,15 +525,18 @@ export default function AdminPage() {
     uploadForm.append("signature", signatureData.signature);
 
     const cloudResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${encodeURIComponent(signatureData.cloudName)}/video/upload`,
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(signatureData.cloudName)}/${resourceType}/upload`,
       { method: "POST", body: uploadForm },
     );
     const cloudData = await cloudResponse.json().catch(() => ({}));
     if (!cloudResponse.ok || !cloudData.secure_url) {
-      throw new Error(cloudData.error?.message || "Cloudinary could not upload this video.");
+      throw new Error(cloudData.error?.message || `Cloudinary could not upload this ${resourceType}.`);
     }
     return String(cloudData.secure_url);
   };
+
+  const uploadImageFile = (file: File) => uploadToCloudinary(file, "image");
+  const uploadVideoFile = (file: File) => uploadToCloudinary(file, "video");
 
   const fetchSiteConfig = async () => {
     try {
