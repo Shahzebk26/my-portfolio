@@ -558,8 +558,8 @@ export default function AdminPage() {
       setSiteImageFile(null);
       setSiteImagePreview("");
       setStatus("Hero image saved.");
-    } catch {
-      setError("Unable to update hero image.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to update hero image.");
     }
   };
 

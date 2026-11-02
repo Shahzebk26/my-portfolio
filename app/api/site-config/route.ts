@@ -20,7 +20,8 @@ export async function PUT(request: Request) {
   try {
     const site = await updateSiteConfig({ profileImage: String(body.profileImage) });
     return NextResponse.json({ site });
-  } catch {
-    return NextResponse.json({ error: 'Unable to save site config.' }, { status: 500 });
+  } catch (error) {
+    console.error('Unable to save site config.', error);
+    return NextResponse.json({ error: 'Unable to save site config. Check the database connection and try again.' }, { status: 500 });
   }
 }
