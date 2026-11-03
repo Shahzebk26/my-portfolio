@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteShell from "../components/site-shell";
 import ConnectCard from "../components/connect-card";
 import { readContent } from "../../lib/content-storage";
+import RichTextContent from "../components/rich-text-content";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,7 @@ export default async function ContactPage() {
       <section className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="glass-panel animate-fade-up rounded-3xl border border-[color:var(--border)] bg-[color:var(--panel)] p-8 shadow-2xl shadow-slate-950/20">
           <h2 className="text-2xl font-semibold text-[color:var(--text-strong)]">{contactPage.heading}</h2>
-          <p className="mt-4 text-lg leading-8 text-[color:var(--muted)]">
-            {contactPage.description}
-          </p>
+          <RichTextContent content={contactPage.description} className="mt-4 text-lg leading-8 text-[color:var(--muted)]" />
           <a
             href={`mailto:${contactPage.email}`}
             className="btn-primary mt-8 inline-flex rounded-full px-6 py-3 font-semibold text-slate-950"
@@ -38,7 +37,7 @@ export default async function ContactPage() {
                   <h3 className="text-lg font-semibold text-[color:var(--text-strong)]">
                     <span className="text-cyan-400">{feature.highlight}</span> {feature.rest}
                   </h3>
-                  <p className="mt-1 text-sm leading-7 text-[color:var(--muted)]">{feature.description}</p>
+                  <RichTextContent content={feature.description} className="mt-1 text-sm leading-7 text-[color:var(--muted)]" />
                 </div>
               ))}
             </div>

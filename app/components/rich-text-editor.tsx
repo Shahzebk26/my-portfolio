@@ -8,11 +8,13 @@ import { normalizePastedRichTextHtml, sanitizeRichTextHtml } from "../../lib/ric
 type Props = {
   value: string;
   onChange: (value: string) => void;
+  compact?: boolean;
+  label?: string;
 };
 
 const buttonClass = "rounded-lg border border-(--border) bg-(--panel-strong) px-3 py-2 text-sm font-semibold text-(--text-strong) transition hover:border-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40";
 
-export default function RichTextEditor({ value, onChange }: Props) {
+export default function RichTextEditor({ value, onChange, compact = false, label = "Rich text editor" }: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -24,8 +26,8 @@ export default function RichTextEditor({ value, onChange }: Props) {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: "tiptap min-h-64 p-4 text-base leading-7 text-(--text-strong) outline-none [&_a]:text-cyan-300 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-cyan-400 [&_blockquote]:pl-4 [&_code]:rounded [&_code]:bg-(--panel) [&_code]:px-1 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_li]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:bg-(--panel) [&_pre]:p-4 [&_ul]:list-disc [&_hr]:my-5 [&_hr]:border-(--border)",
-        "aria-label": "Project overview rich text editor",
+        class: `tiptap ${compact ? "min-h-28" : "min-h-64"} p-4 text-base leading-7 text-(--text-strong) outline-none [&_a]:text-cyan-300 [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-cyan-400 [&_blockquote]:pl-4 [&_code]:rounded [&_code]:bg-(--panel) [&_code]:px-1 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_li]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-xl [&_pre]:bg-(--panel) [&_pre]:p-4 [&_ul]:list-disc [&_hr]:my-5 [&_hr]:border-(--border)`,
+        "aria-label": label,
       },
       transformPastedHTML: normalizePastedRichTextHtml,
     },
@@ -55,7 +57,7 @@ export default function RichTextEditor({ value, onChange }: Props) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-(--border) bg-(--panel-strong)">
-      <div className="flex flex-wrap gap-2 border-b border-(--border) p-3" role="toolbar" aria-label="Project overview formatting">
+      <div className="flex flex-wrap gap-2 border-b border-(--border) p-3" role="toolbar" aria-label={`${label} formatting`}>
         <button type="button" className={buttonClass} disabled={!editor} onMouseDown={(event) => event.preventDefault()} onClick={action(() => editor?.chain().focus().toggleHeading({ level: 2 }).run())} aria-label="Heading 2" aria-pressed={editor?.isActive("heading", { level: 2 })}>H2</button>
         <button type="button" className={buttonClass} disabled={!editor} onMouseDown={(event) => event.preventDefault()} onClick={action(() => editor?.chain().focus().toggleHeading({ level: 3 }).run())} aria-label="Heading 3" aria-pressed={editor?.isActive("heading", { level: 3 })}>H3</button>
         <button type="button" className={buttonClass} disabled={!editor} onMouseDown={(event) => event.preventDefault()} onClick={action(() => editor?.chain().focus().setParagraph().run())} aria-label="Paragraph">¶</button>

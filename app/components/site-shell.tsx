@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { hasRichTextMarkup, sanitizeRichTextHtml } from "../../lib/rich-text";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -257,7 +258,14 @@ export default function SiteShell({ children, title, intro, hideHeader = false }
             <h1 className={`mt-3 text-3xl font-semibold sm:text-4xl ${strongText}`}>
               {title}
             </h1>
-            {intro ? <p className={`mt-4 max-w-2xl text-lg leading-8 ${mutedText}`}>{intro}</p> : null}
+            {intro ? (
+              hasRichTextMarkup(intro) ? (
+                <div
+                  className={`rich-content mt-4 max-w-2xl text-lg leading-8 ${mutedText} [&_a]:text-cyan-300 [&_a]:underline [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:text-xl [&_h3]:font-semibold [&_li]:ml-6 [&_ol]:list-decimal [&_ul]:list-disc`}
+                  dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(intro) }}
+                />
+              ) : <p className={`mt-4 max-w-2xl text-lg leading-8 ${mutedText}`}>{intro}</p>
+            ) : null}
           </section>
         ) : null}
 

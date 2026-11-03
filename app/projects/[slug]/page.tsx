@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
 
   return {
     title: `${project.title} | Shahzeb`,
-    description: project.description,
+    description: project.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
   };
 }
 

@@ -78,6 +78,12 @@ function stringifyValueLabel(items: { value: string; label: string }[]): string 
 }
 
 function parseCards(text: string): { label: string; title: string; description: string }[] {
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // Read the previous line-based format for existing content.
+  }
   return linesToList(text)
     .map((line) => {
       const [label, title, description] = line.split("|").map((part) => (part ?? "").trim());
@@ -87,10 +93,16 @@ function parseCards(text: string): { label: string; title: string; description: 
 }
 
 function stringifyCards(items: { label: string; title: string; description: string }[]): string {
-  return items.map((item) => `${item.label} | ${item.title} | ${item.description}`).join("\n");
+  return JSON.stringify(items);
 }
 
 function parseFeatures(text: string): { highlight: string; rest: string; description: string }[] {
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // Read the previous line-based format for existing content.
+  }
   return linesToList(text)
     .map((line) => {
       const [highlight, rest, description] = line.split("|").map((part) => (part ?? "").trim());
@@ -100,7 +112,7 @@ function parseFeatures(text: string): { highlight: string; rest: string; descrip
 }
 
 function stringifyFeatures(items: { highlight: string; rest: string; description: string }[]): string {
-  return items.map((item) => `${item.highlight} | ${item.rest} | ${item.description}`).join("\n");
+  return JSON.stringify(items);
 }
 
 function parseMethods(text: string): { label: string; value: string; href: string }[] {
@@ -718,7 +730,7 @@ export default function AdminPage() {
         heroTitle: contentForm.aboutHeroTitle,
         heroIntro: contentForm.aboutHeroIntro,
         approachHeading: contentForm.aboutApproachHeading,
-        approachParagraphs: linesToList(contentForm.aboutApproachParagraphs),
+        approachParagraphs: [contentForm.aboutApproachParagraphs],
         strengthsHeading: contentForm.aboutStrengthsHeading,
         strengths: linesToList(contentForm.aboutStrengths),
         highlights: parseValueLabel(contentForm.aboutHighlights),
@@ -1018,7 +1030,7 @@ export default function AdminPage() {
               <TextField label="Last name" value={contentForm.heroLastName} onChange={(v) => setContentForm((p) => ({ ...p, heroLastName: v }))} />
             </div>
             <TextAreaField label="Tagline" value={contentForm.heroTagline} onChange={(v) => setContentForm((p) => ({ ...p, heroTagline: v }))} height="h-20" />
-            <TextAreaField label="Description" value={contentForm.heroDescription} onChange={(v) => setContentForm((p) => ({ ...p, heroDescription: v }))} height="h-24" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label="Homepage hero description" value={contentForm.heroDescription} onChange={(v) => setContentForm((p) => ({ ...p, heroDescription: v }))} /></div>
             <TextField label={'"Available for hire" badge'} value={contentForm.heroAvailableBadge} onChange={(v) => setContentForm((p) => ({ ...p, heroAvailableBadge: v }))} />
             <div className="grid gap-5 sm:grid-cols-2">
               <TextField label="Primary button label" value={contentForm.heroPrimaryCtaLabel} onChange={(v) => setContentForm((p) => ({ ...p, heroPrimaryCtaLabel: v }))} />
@@ -1040,14 +1052,21 @@ export default function AdminPage() {
               <TextField label="Eyebrow" value={contentForm.expertiseEyebrow} onChange={(v) => setContentForm((p) => ({ ...p, expertiseEyebrow: v }))} />
               <TextField label="Heading" value={contentForm.expertiseHeading} onChange={(v) => setContentForm((p) => ({ ...p, expertiseHeading: v }))} />
             </div>
-            <TextAreaField label="Description" value={contentForm.expertiseDescription} onChange={(v) => setContentForm((p) => ({ ...p, expertiseDescription: v }))} height="h-20" />
-            <TextAreaField
-              label="Service cards"
-              value={contentForm.expertiseCards}
-              onChange={(v) => setContentForm((p) => ({ ...p, expertiseCards: v }))}
-              height="h-32"
-              hint={'One per line: "label | title | description"'}
-            />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label="Expertise section description" value={contentForm.expertiseDescription} onChange={(v) => setContentForm((p) => ({ ...p, expertiseDescription: v }))} /></div>
+            <div className="space-y-5">
+              <p className="text-sm font-semibold text-(--text-strong)">Service cards</p>
+              {parseCards(contentForm.expertiseCards).map((card, index) => (
+                <div key={`service-${index}`} className="space-y-4 rounded-2xl border border-(--border) p-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField label="Card label" value={card.label} onChange={(value) => setContentForm((p) => ({ ...p, expertiseCards: stringifyCards(parseCards(p.expertiseCards).map((item, i) => i === index ? { ...item, label: value } : item)) }))} />
+                    <TextField label="Card title" value={card.title} onChange={(value) => setContentForm((p) => ({ ...p, expertiseCards: stringifyCards(parseCards(p.expertiseCards).map((item, i) => i === index ? { ...item, title: value } : item)) }))} />
+                  </div>
+                  <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label={`${card.title || "Service card"} description`} value={card.description} onChange={(value) => setContentForm((p) => ({ ...p, expertiseCards: stringifyCards(parseCards(p.expertiseCards).map((item, i) => i === index ? { ...item, description: value } : item)) }))} /></div>
+                  <button type="button" onClick={() => setContentForm((p) => ({ ...p, expertiseCards: stringifyCards(parseCards(p.expertiseCards).filter((_, i) => i !== index)) }))} className="text-sm text-red-300 hover:text-red-200">Remove service card</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setContentForm((p) => ({ ...p, expertiseCards: stringifyCards([...parseCards(p.expertiseCards), { label: "New service", title: "Service title", description: "" }]) }))} className="rounded-full border border-(--border) px-4 py-2 text-sm font-semibold text-(--text-strong) hover:border-cyan-400">Add service card</button>
+            </div>
           </Panel>
 
           <Panel eyebrow="Homepage" title="About teaser section" onSave={saveHeroAndHome} saveLabel="Save Hero & Home">
@@ -1055,7 +1074,7 @@ export default function AdminPage() {
               <TextField label="Eyebrow" value={contentForm.aboutTeaserEyebrow} onChange={(v) => setContentForm((p) => ({ ...p, aboutTeaserEyebrow: v }))} />
               <TextField label="Heading" value={contentForm.aboutTeaserHeading} onChange={(v) => setContentForm((p) => ({ ...p, aboutTeaserHeading: v }))} />
             </div>
-            <TextAreaField label="Description" value={contentForm.aboutTeaserDescription} onChange={(v) => setContentForm((p) => ({ ...p, aboutTeaserDescription: v }))} height="h-20" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label="About teaser description" value={contentForm.aboutTeaserDescription} onChange={(v) => setContentForm((p) => ({ ...p, aboutTeaserDescription: v }))} /></div>
             <TextField label="Strengths list heading" value={contentForm.aboutTeaserStrengthsHeading} onChange={(v) => setContentForm((p) => ({ ...p, aboutTeaserStrengthsHeading: v }))} />
             <TextAreaField
               label="Strengths"
@@ -1092,18 +1111,12 @@ export default function AdminPage() {
               <TextField label="Meta description" value={contentForm.aboutMetaDescription} onChange={(v) => setContentForm((p) => ({ ...p, aboutMetaDescription: v }))} />
               <TextField label="Page title" value={contentForm.aboutHeroTitle} onChange={(v) => setContentForm((p) => ({ ...p, aboutHeroTitle: v }))} />
             </div>
-            <TextAreaField label="Intro paragraph" value={contentForm.aboutHeroIntro} onChange={(v) => setContentForm((p) => ({ ...p, aboutHeroIntro: v }))} height="h-20" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Intro paragraph</label><RichTextEditor compact label="About page introduction" value={contentForm.aboutHeroIntro} onChange={(v) => setContentForm((p) => ({ ...p, aboutHeroIntro: v }))} /></div>
           </Panel>
 
           <Panel eyebrow="About Page" title="Approach & strengths" onSave={saveAboutPage}>
             <TextField label={'"My approach" heading'} value={contentForm.aboutApproachHeading} onChange={(v) => setContentForm((p) => ({ ...p, aboutApproachHeading: v }))} />
-            <TextAreaField
-              label="Approach paragraphs"
-              value={contentForm.aboutApproachParagraphs}
-              onChange={(v) => setContentForm((p) => ({ ...p, aboutApproachParagraphs: v }))}
-              height="h-28"
-              hint="One paragraph per line"
-            />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Approach content</label><RichTextEditor label="About page approach content" value={contentForm.aboutApproachParagraphs} onChange={(v) => setContentForm((p) => ({ ...p, aboutApproachParagraphs: v }))} /></div>
             <TextField label="Strengths list heading" value={contentForm.aboutStrengthsHeading} onChange={(v) => setContentForm((p) => ({ ...p, aboutStrengthsHeading: v }))} />
             <TextAreaField
               label="Strengths"
@@ -1134,12 +1147,12 @@ export default function AdminPage() {
               <TextField label="Meta description" value={contentForm.contactMetaDescription} onChange={(v) => setContentForm((p) => ({ ...p, contactMetaDescription: v }))} />
               <TextField label="Page title" value={contentForm.contactHeroTitle} onChange={(v) => setContentForm((p) => ({ ...p, contactHeroTitle: v }))} />
             </div>
-            <TextAreaField label="Intro paragraph" value={contentForm.contactHeroIntro} onChange={(v) => setContentForm((p) => ({ ...p, contactHeroIntro: v }))} height="h-20" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Intro paragraph</label><RichTextEditor compact label="Contact page introduction" value={contentForm.contactHeroIntro} onChange={(v) => setContentForm((p) => ({ ...p, contactHeroIntro: v }))} /></div>
           </Panel>
 
           <Panel eyebrow="Contact Page" title="Main panel" onSave={saveContactPage}>
             <TextField label="Heading" value={contentForm.contactHeading} onChange={(v) => setContentForm((p) => ({ ...p, contactHeading: v }))} />
-            <TextAreaField label="Description" value={contentForm.contactDescription} onChange={(v) => setContentForm((p) => ({ ...p, contactDescription: v }))} height="h-24" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label="Contact page description" value={contentForm.contactDescription} onChange={(v) => setContentForm((p) => ({ ...p, contactDescription: v }))} /></div>
             <div className="grid gap-5 sm:grid-cols-2">
               <TextField label="Button label" value={contentForm.contactCtaLabel} onChange={(v) => setContentForm((p) => ({ ...p, contactCtaLabel: v }))} />
               <TextField label="Contact email (used by the button)" value={contentForm.contactEmail} onChange={(v) => setContentForm((p) => ({ ...p, contactEmail: v }))} />
@@ -1167,20 +1180,27 @@ export default function AdminPage() {
               <TextField label="Heading" value={contentForm.connectHeading} onChange={(v) => setContentForm((p) => ({ ...p, connectHeading: v }))} />
               <TextField label="Heading highlight (colored)" value={contentForm.connectHeadingHighlight} onChange={(v) => setContentForm((p) => ({ ...p, connectHeadingHighlight: v }))} />
             </div>
-            <TextAreaField label="Description" value={contentForm.connectDescription} onChange={(v) => setContentForm((p) => ({ ...p, connectDescription: v }))} height="h-20" />
+            <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label="Connect section description" value={contentForm.connectDescription} onChange={(v) => setContentForm((p) => ({ ...p, connectDescription: v }))} /></div>
           </Panel>
 
           <Panel eyebrow="Contact Page" title="Feature blocks" onSave={saveConnect} saveLabel="Save Connect Section">
             <p className="text-xs text-(--muted)">
               Shown only on this Contact page, below the description — not on the homepage.
             </p>
-            <TextAreaField
-              label="Feature blocks"
-              value={contentForm.connectFeatures}
-              onChange={(v) => setContentForm((p) => ({ ...p, connectFeatures: v }))}
-              height="h-24"
-              hint={'One per line: "highlight | rest of title | description" — e.g. "Single Project | Engagement | From a marketing site to a full web app..."'}
-            />
+            <div className="space-y-5">
+              <p className="text-sm font-semibold text-(--text-strong)">Feature blocks</p>
+              {parseFeatures(contentForm.connectFeatures).map((feature, index) => (
+                <div key={`feature-${index}`} className="space-y-4 rounded-2xl border border-(--border) p-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField label="Highlighted title" value={feature.highlight} onChange={(value) => setContentForm((p) => ({ ...p, connectFeatures: stringifyFeatures(parseFeatures(p.connectFeatures).map((item, i) => i === index ? { ...item, highlight: value } : item)) }))} />
+                    <TextField label="Title remainder" value={feature.rest} onChange={(value) => setContentForm((p) => ({ ...p, connectFeatures: stringifyFeatures(parseFeatures(p.connectFeatures).map((item, i) => i === index ? { ...item, rest: value } : item)) }))} />
+                  </div>
+                  <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Description</label><RichTextEditor compact label={`${feature.highlight} ${feature.rest} description`} value={feature.description} onChange={(value) => setContentForm((p) => ({ ...p, connectFeatures: stringifyFeatures(parseFeatures(p.connectFeatures).map((item, i) => i === index ? { ...item, description: value } : item)) }))} /></div>
+                  <button type="button" onClick={() => setContentForm((p) => ({ ...p, connectFeatures: stringifyFeatures(parseFeatures(p.connectFeatures).filter((_, i) => i !== index)) }))} className="text-sm text-red-300 hover:text-red-200">Remove feature</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setContentForm((p) => ({ ...p, connectFeatures: stringifyFeatures([...parseFeatures(p.connectFeatures), { highlight: "New", rest: "Feature", description: "" }]) }))} className="rounded-full border border-(--border) px-4 py-2 text-sm font-semibold text-(--text-strong) hover:border-cyan-400">Add feature block</button>
+            </div>
           </Panel>
 
           <Panel eyebrow="Home + Contact" title="Connect card" onSave={saveConnect} saveLabel="Save Connect Section">
@@ -1321,7 +1341,7 @@ export default function AdminPage() {
                         <div className="contents">
                           <input type="checkbox" aria-label={`Select ${project.title}`} className="h-4 w-4 rounded border-(--border) bg-(--panel) accent-cyan-400" />
                           <p className="text-sm font-semibold text-cyan-300">{project.title}</p>
-                          <p className="hidden truncate text-sm text-(--muted) md:block" title={project.description}>{project.description || "No short description added."}</p>
+                          <p className="hidden truncate text-sm text-(--muted) md:block" title={project.description}>{project.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() || "No short description added."}</p>
                           <div className="hidden truncate text-sm text-cyan-300 md:block" title={project.slug}>
                             <span>{project.category}</span>
                             <span>•</span>
@@ -1380,7 +1400,7 @@ export default function AdminPage() {
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <TextField label="Title" value={form.title} onChange={(v) => setForm((prev) => ({ ...prev, title: v }))} placeholder="Project title" />
-              <TextAreaField label="Description" value={form.description} onChange={(v) => setForm((prev) => ({ ...prev, description: v }))} height="h-24" placeholder="Short project description" />
+              <div><label className="mb-2 block text-sm font-semibold text-(--text-strong)">Short description</label><RichTextEditor compact label="Project card description" value={form.description} onChange={(v) => setForm((prev) => ({ ...prev, description: v }))} /></div>
               <TextField label="Tech stack" value={form.stack} onChange={(v) => setForm((prev) => ({ ...prev, stack: v }))} placeholder="Next.js, Node.js, TypeScript" />
               <TextField label="Category" value={form.category} onChange={(v) => setForm((prev) => ({ ...prev, category: v }))} placeholder="Web App, Mobile App, Tooling" />
               <TextField label="Slug" value={form.slug} onChange={(v) => setForm((prev) => ({ ...prev, slug: v }))} placeholder="project-slug" />

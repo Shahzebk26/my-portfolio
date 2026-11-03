@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Project } from "../../lib/project-storage";
+import { sanitizeRichTextHtml } from "../../lib/rich-text";
 
 export default function ProjectCard({ project, carousel = false }: { project: Project; carousel?: boolean }) {
   const [previewing, setPreviewing] = useState(false);
@@ -63,7 +64,7 @@ export default function ProjectCard({ project, carousel = false }: { project: Pr
 
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">{project.category}</p>
-          <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-200">{project.description}</p>
+          <div className="mt-2 line-clamp-3 text-sm leading-6 text-slate-200 [&_h2]:font-semibold [&_h3]:font-semibold [&_li]:ml-4 [&_ol]:list-decimal [&_ul]:list-disc" dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(project.description) }} />
           {project.stack.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {project.stack.slice(0, 4).map((tech) => (

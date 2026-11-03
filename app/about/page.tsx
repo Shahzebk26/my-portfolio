@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SiteShell from "../components/site-shell";
 import { readContent } from "../../lib/content-storage";
+import RichTextContent from "../components/rich-text-content";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +21,8 @@ export default async function AboutPage() {
       <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="glass-panel animate-fade-up rounded-3xl border border-[color:var(--border)] bg-[color:var(--panel)] p-8 shadow-2xl shadow-slate-950/20">
           <h2 className="text-2xl font-semibold text-[color:var(--text-strong)]">{aboutPage.approachHeading}</h2>
-          {aboutPage.approachParagraphs.map((paragraph) => (
-            <p key={paragraph} className="mt-4 text-lg leading-8 text-[color:var(--muted)]">
-              {paragraph}
-            </p>
+          {aboutPage.approachParagraphs.map((paragraph, index) => (
+            <RichTextContent key={`${index}-${paragraph.slice(0, 24)}`} content={paragraph} className="mt-4 text-lg leading-8 text-[color:var(--muted)] [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:text-xl [&_h3]:font-semibold" />
           ))}
         </div>
 

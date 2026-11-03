@@ -7,6 +7,7 @@ import { readSiteConfig } from "../lib/site-storage";
 import ConnectCard from "./components/connect-card";
 import ProjectsCarousel from "./components/projects-carousel";
 import ProductDeliveryMap from "./components/product-delivery-map";
+import RichTextContent from "./components/rich-text-content";
 
 // Projects are managed at runtime through the admin API and stored in a JSON file.
 // Always read the latest file when the homepage is requested.
@@ -35,9 +36,7 @@ export default async function Home() {
               </span>
               <span className="mt-3 block text-xl font-medium text-[color:var(--muted)] reveal-up stagger-3 lg:text-2xl">{hero.tagline}</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-[color:var(--muted)] reveal-up stagger-4">
-              {hero.description}
-            </p>
+            <RichTextContent content={hero.description} className="mt-6 text-lg leading-8 text-[color:var(--muted)] reveal-up stagger-4" />
 
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
@@ -86,9 +85,7 @@ export default async function Home() {
         <div className="space-y-5">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">{expertise.eyebrow}</p>
           <h2 className="text-3xl font-semibold text-[color:var(--text-strong)]">{expertise.heading}</h2>
-          <p className="max-w-xl text-base leading-8 text-[color:var(--muted)]">
-            {expertise.description}
-          </p>
+          <RichTextContent content={expertise.description} className="max-w-xl text-base leading-8 text-[color:var(--muted)]" />
         </div>
 
         <div className="flex flex-wrap items-stretch justify-between gap-5 lg:flex-nowrap">
@@ -100,9 +97,7 @@ export default async function Home() {
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-slate-400 to-cyan-400 opacity-0 transition duration-300 group-hover:opacity-100" />
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">{card.label}</p>
               <h3 className="mt-4 text-xl font-semibold text-[color:var(--text-strong)]">{card.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-[color:var(--muted)]">
-                {card.description}
-              </p>
+              <RichTextContent content={card.description} className="mt-3 text-sm leading-7 text-[color:var(--muted)]" />
               <div className="mt-6 inline-flex rounded-full border border-cyan-400/20 px-4 py-2 text-sm font-medium text-cyan-300 transition duration-300 group-hover:bg-cyan-500/10 group-hover:text-cyan-200">
                 Explore
               </div>
@@ -118,9 +113,7 @@ export default async function Home() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">{aboutTeaser.eyebrow}</p>
             <h2 className="mt-3 text-2xl font-semibold text-[color:var(--text-strong)]">{aboutTeaser.heading}</h2>
-            <p className="mt-4 text-base leading-8 text-[color:var(--muted)]">
-              {aboutTeaser.description}
-            </p>
+            <RichTextContent content={aboutTeaser.description} className="mt-4 text-base leading-8 text-[color:var(--muted)]" />
           </div>
           <div className="glass-panel rounded-2xl border border-[color:var(--border)] bg-[color:var(--panel-strong)] p-6">
             <h3 className="text-lg font-semibold text-[color:var(--text-strong)]">{aboutTeaser.strengthsHeading}</h3>
@@ -163,7 +156,7 @@ export default async function Home() {
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-[color:var(--text-strong)] sm:text-4xl">
             {connect.heading} <span className="text-cyan-400">{connect.headingHighlight}</span>
           </h2>
-          <p className="mt-5 max-w-xl text-base leading-8 text-[color:var(--muted)]">{connect.description}</p>
+          <RichTextContent content={connect.description} className="mt-5 max-w-xl text-base leading-8 text-[color:var(--muted)]" />
         </div>
 
         <ConnectCard connect={connect} fallbackEmail={contactPage.email} />
