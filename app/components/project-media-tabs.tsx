@@ -7,9 +7,10 @@ type ProjectMediaTabsProps = {
   title: string;
   image: string;
   videoUrl?: string;
+  featured?: boolean;
 };
 
-export default function ProjectMediaTabs({ title, image, videoUrl }: ProjectMediaTabsProps) {
+export default function ProjectMediaTabs({ title, image, videoUrl, featured = false }: ProjectMediaTabsProps) {
   const initialTab = image ? "image" : "video";
   const [activeTab, setActiveTab] = useState<"image" | "video">(initialTab);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -27,42 +28,49 @@ export default function ProjectMediaTabs({ title, image, videoUrl }: ProjectMedi
 
   return (
     <div>
-      <div className="relative aspect-video w-full bg-(--panel-strong)">
-        {image ? (
-          <div
-            id="project-image-panel"
-            role={image && videoUrl ? "tabpanel" : undefined}
-            aria-labelledby={image && videoUrl ? "project-image-tab" : undefined}
-            hidden={activeTab !== "image"}
-            className="absolute inset-0"
-          >
-            <Image src={image} alt={`${title} portfolio image`} fill unoptimized priority className="object-cover" />
-          </div>
+      <section className="glass-panel relative mt-6 overflow-hidden rounded-[2rem] border border-(--border) bg-(--panel) shadow-2xl shadow-slate-950/20">
+        <div className="relative aspect-video w-full bg-(--panel-strong)">
+          {image ? (
+            <div
+              id="project-image-panel"
+              role={image && videoUrl ? "tabpanel" : undefined}
+              aria-labelledby={image && videoUrl ? "project-image-tab" : undefined}
+              hidden={activeTab !== "image"}
+              className="absolute inset-0"
+            >
+              <Image src={image} alt={`${title} portfolio image`} fill unoptimized priority className="object-cover" />
+            </div>
+          ) : null}
+          {videoUrl ? (
+            <div
+              id="project-video-panel"
+              role={image && videoUrl ? "tabpanel" : undefined}
+              aria-labelledby={image && videoUrl ? "project-video-tab" : undefined}
+              hidden={activeTab !== "video"}
+              className="absolute inset-0"
+            >
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                poster={image || undefined}
+                controls
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : null}
+          {!image && !videoUrl ? <div className="h-full w-full" /> : null}
+        </div>
+        {featured ? (
+          <span className="absolute right-5 top-5 z-10 rounded-full bg-cyan-500/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">
+            Featured
+          </span>
         ) : null}
-        {videoUrl ? (
-          <div
-            id="project-video-panel"
-            role={image && videoUrl ? "tabpanel" : undefined}
-            aria-labelledby={image && videoUrl ? "project-video-tab" : undefined}
-            hidden={activeTab !== "video"}
-            className="absolute inset-0"
-          >
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              poster={image || undefined}
-              controls
-              playsInline
-              preload="metadata"
-              className="h-full w-full object-contain"
-            />
-          </div>
-        ) : null}
-        {!image && !videoUrl ? <div className="h-full w-full" /> : null}
-      </div>
+      </section>
 
       {image && videoUrl ? (
-        <div className="flex gap-3 overflow-x-auto bg-slate-950/50 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5" role="tablist" aria-label={`${title} media`}>
+        <div className="mt-4 flex gap-3 overflow-x-auto px-1 py-1 sm:mt-5 sm:gap-4" role="tablist" aria-label={`${title} media`}>
           <button
             id="project-image-tab"
             type="button"

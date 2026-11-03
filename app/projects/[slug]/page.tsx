@@ -52,15 +52,8 @@ export default async function ProjectDetailPage({ params }: PageProps<"/projects
         <span aria-hidden="true">←</span> Back to Projects
       </Link>
 
-      {/* Hero media */}
-      <section className="glass-panel relative mt-6 overflow-hidden rounded-[2rem] border border-(--border) bg-(--panel) shadow-2xl shadow-slate-950/20">
-        <ProjectMediaTabs title={project.title} image={project.image} videoUrl={project.videoUrl} />
-        {project.featured ? (
-          <span className="absolute right-5 top-5 rounded-full bg-cyan-500/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">
-            Featured
-          </span>
-        ) : null}
-      </section>
+      {/* Hero media and its thumbnail tabs */}
+      <ProjectMediaTabs title={project.title} image={project.image} videoUrl={project.videoUrl} featured={project.featured} />
 
       {/* Title */}
       <section className="mt-10 animate-fade-up">
